@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: self-hosted
+    runs-on: ubuntu
 
     steps:
       - name: Cleanup build folder

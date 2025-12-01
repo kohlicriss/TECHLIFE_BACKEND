@@ -9,7 +9,7 @@ image:
   repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/authentication
   pullPolicy: IfNotPresent
   tag: "v1.2.7"
-##
+#
 env:
   # SPRING_DATASOURCE_URL: jdbc:postgresql://hrmdb.c3ykgskuuzr8.ap-south-1.rds.amazonaws.com:5432/postgres
   SPRING_DATASOURCE_SCHEMA: auth
