@@ -7,7 +7,7 @@ microservice:
   port: 8091
 
 image:
-  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/attendance
+  repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/attendance
   pullPolicy: IfNotPresent
   tag: "v1.3.4"
 #

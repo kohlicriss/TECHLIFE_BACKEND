@@ -6,7 +6,7 @@ microservice:
   port: 8080
 
 image:
-  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/authentication
+  repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/authentication
   pullPolicy: IfNotPresent
   tag: "v1.2.7"
 ##
