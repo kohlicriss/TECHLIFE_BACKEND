@@ -61,7 +61,7 @@ jobs:
               EXISTS=$(aws ecr describe-images \ --repository-name $REPO_NAME \ --image-ids imageTag=$VERSION \ --query 'imageDetails[0].imageTags[0]' \ --output text 2>/dev/null || echo "NOT_FOUND") 
               if [ "$EXISTS" = "NOT_FOUND" ]; then 
                 echo "Building & pushing $REPO:$VERSION" 
-                docker buildx build --platform=linux/arm64,linux/amd64 -t $REPO:$VERSION $service 
+                docker buildx build --platform=linux/arm64 -t $REPO:$VERSION $service 
                 docker push $REPO:$VERSION 
                 docker rmi $REPO:$VERSION 
                 docker system prune -a
