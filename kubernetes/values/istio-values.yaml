@@ -1,0 +1,27 @@
+meshConfig:
+  enableTracing: true
+  defaultProviders:
+    tracing:
+      - otel-tracing
+    accessLogging:
+      - otel-loging
+  extensionProviders:
+    - name: otel-tracing
+      opentelemetry:
+        service: opentelemetry-opentelemetry-collector.observability.svc.cluster.local
+        port: 4318
+        http:
+          path: /v1/traces
+          timeout: 5s
+    - name: otel-loging
+      envoyOtelAls:
+        service: opentelemetry-opentelemetry-collector.observability.svc.cluster.local
+        port: 4317
+  accessLogFile: /dev/stdout
+  accessLogFormat: json
+
+  
+pilot:
+  enabled: true
+  env:
+    PILOT_ENABLE_ALPHA_GATEWAY_API: "true"

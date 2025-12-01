@@ -1,0 +1,64 @@
+name: delete resources from aws
+on:
+  schedule:
+   - cron: "29 16 * * *"
+  workflow_dispatch:
+
+jobs:
+  destroy-all:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: S3 recovery creation
+        run: |
+          aws s3 rm s3://hrms-postgress-bucket/s3-recovery/ --recursive
+          aws s3 cp s3://hrms-postgress-bucket/postgres-cluster/ s3://hrms-postgress-bucket/s3-recovery/ --recursive
+          aws s3 rm s3://hrms-postgress-bucket/postgres-cluster/ --recursive
+
+
+      - name: List all available EBS volumes
+        run: |
+          LIST_VOL=$(aws ec2 describe-volumes \
+            --filters Name=status,Values=available \
+            --query "Volumes[].VolumeId" \
+            --output text)
+          echo "LIST_VOL=$LIST_VOL" >> $GITHUB_ENV
+
+      - name: Delete all EBS volumes
+        run: |
+          for vol in ${{ env.LIST_VOL }}; do
+            echo "Deleting volume $vol"
+            aws ec2 delete-volume --volume-id $vol
+          done
+
+      - name: List all load balancers
+        run: |
+          LIST_LB=$(aws elbv2 describe-load-balancers \
+            --query "LoadBalancers[].LoadBalancerArn" \
+            --output text)
+          echo "LIST_LB=$LIST_LB" >> $GITHUB_ENV
+
+      - name: Delete all load balancers
+        run: |
+          for lb in ${{ env.LIST_LB }}; do
+            echo "Deleting load balancer $lb"
+            aws elbv2 delete-load-balancer --load-balancer-arn $lb
+          done
+
+      - name: Final Cleanup
+        if: always()
+        run: |
+          rm -rf ./* ./.??* || true
+
+
+
+

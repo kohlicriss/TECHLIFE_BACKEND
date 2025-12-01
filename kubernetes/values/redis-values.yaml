@@ -1,0 +1,63 @@
+architecture: replication
+image:
+  registry: docker.io
+  repository: redis
+  tag: 8.2.1
+
+
+auth:
+  enabled: true
+  password: RedisPasswordMaster
+  sentinel: false
+
+replica:
+  replicaCount: 3
+  extraFlags:
+    - "--appendonly yes"
+    - "--bind 0.0.0.0"
+  persistence:
+    enabled: false
+
+master:
+  extraFlags:
+    - "--appendonly yes"
+    - "--bind 0.0.0.0"
+  persistence:
+    enabled: true
+    size: 3Gi
+    storageClass: ebs-sc
+    accessModes:
+      - ReadWriteOnce
+
+
+
+sentinel:
+
+
+  enabled: true
+  image:
+    repository: redis
+    tag: 8.2.1
+  replicaCount: 3
+  quorum: 2
+  persistence:
+    enabled: false
+
+# Allows read-only queries from replicas
+replicaReadOnly: true
+
+networkPolicy:
+  enabled: false
+
+service:
+  type: NodePort
+
+# metrics:
+#   enabled: true
+#   serviceMonitor:
+#     enabled: true
+#     namespace: redis
+#     interval: 30s
+#     additionalLabels:
+#       release: monitoring
+

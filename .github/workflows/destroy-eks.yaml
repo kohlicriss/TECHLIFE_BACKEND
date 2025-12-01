@@ -1,0 +1,89 @@
+name: Destroy EKS Cluster using Terraform from AWS
+on:
+  schedule:
+    - cron: "29 14 * * *"
+
+  workflow_dispatch:
+
+jobs:
+  destroy-eks:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      # - name: Adgesting kubectl context
+      #   run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+
+      # - name: deleting all the microservices and gatewayapi
+      #   run: |
+      #     kubectl apply -f './kubernetes/postgreSql/manual-backup.yaml'
+      #     #     kubectl delete all --all -n hrms
+      #         kubectl delete all --all -n redis
+      #     #     kubectl delete all --all -n cert-manager
+      #         # kubectl delete all --all -n istio-gateway
+      #     #     kubectl delete all --all -n istio-system
+          
+
+      - name: List all load balancers
+        run: |
+          LIST_LB=$(aws elbv2 describe-load-balancers \
+            --query "LoadBalancers[].LoadBalancerArn" \
+            --output text)
+          echo "LIST_LB=$LIST_LB" >> $GITHUB_ENV
+      
+      - name: Delete all load balancers
+        run: |
+          echo "Load balancers to delete: $LIST_LB"
+          for lb in $LIST_LB; do
+            echo "Deleting load balancer $lb"
+            aws elbv2 delete-load-balancer --load-balancer-arn "$lb"
+          done
+        env:
+          LIST_LB: ${{ env.LIST_LB }}
+
+        
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.11
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' 
+
+        
+      - name: List all load balancers
+        run: |
+          LIST_LB=$(aws elbv2 describe-load-balancers \
+            --query "LoadBalancers[].LoadBalancerArn" \
+            --output text)
+          echo "LIST_LB=$LIST_LB" >> $GITHUB_ENV
+
+      - name: Delete all load balancers
+        run: |
+          for lb in ${{ env.LIST_LB }}; do
+            echo "Deleting load balancer $lb"
+            aws elbv2 delete-load-balancer --load-balancer-arn $lb
+          done
+
+      - name: Terraform Destroy
+        run: |
+          terraform -chdir=./terraform/eks_cluster init
+          terraform -chdir=./terraform/eks_cluster destroy -var-file=use.tfvars -auto-approve
+
+      - name: Final Cleanup
+        if: always()
+        run: rm -rf ./* ./.??* || true

@@ -1,0 +1,129 @@
+replicaCount: 1
+
+microservice:
+  name: tickets
+  namespace: hrms
+  port: 8088
+
+
+image:
+  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/tickets
+  pullPolicy: IfNotPresent
+  tag: "v1.2.9"
+
+env:
+  SERVER_PORT: 8088
+  SPRING_APPLICATION_NAME : employee
+
+
+##
+  # SPRING_DATASOURCE_URL : jdbc:postgresql://chat-hrms.c3ykgskuuzr8.ap-south-1.rds.amazonaws.com:5432/postgres
+  # SPRING_DATASOURCE_USERNAME: postgres
+  # SPRING_DATASOURCE_PASSWORD: HrmAnasolDb
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+
+
+
+  CACHE_TYPE: redis
+  DATA_REDIS_SENTINEL_MASTER: mymaster
+  DATA_REDIS_PASSWORD: RedisPasswordMaster
+  DATA_REDIS_SENTINEL_NODES: sentinel-access.redis.svc.cluster.local:5000
+
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_PUBLIC_KEY_LOCATION: classpath:public.pem
+
+
+
+
+  LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB_SOCKET: DEBUG
+  LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_MESSAGING: DEBUG
+  SPRING_JPA_SHOW_SQL: true
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+  SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+  LOGGING_LEVEL_ORG_HIBERNATE_SQL: DEBUG
+  LOGGING_LEVEL_ORG_HIBERNATE_TYPE_DESCRIPTOR_SQL_BASICBINDER: TRACE
+
+
+  SPRING_CLOUD_KUBERNETES_LOADBALANCER_MODE: service
+
+  APP_CORS_ALLOWED_ORIGINS: http://localhost:3000,http://192.168.0.247:3000,https://techlife.anasolconsultancyservices.com
+
+envFromSecret:
+  SPRING_DATASOURCE_URL:
+    name: postgres-credentials
+    key: POSTGRES_URL
+  SPRING_DATASOURCE_USERNAME:
+    name: postgres-credentials
+    key: POSTGRES_USER
+  SPRING_DATASOURCE_PASSWORD:
+    name: postgres-credentials
+    key: POSTGRES_PASSWORD
+
+#envFromSecret:
+#  DB_USERNAME
+#    name: notification-db-secret
+#    key: username
+#  DB_PASSWORD:
+#    name: notification-db-secret
+#    key: password
+
+
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+livenessProbe:
+  path: "actuator/health/liveness"
+  initialDelaySeconds: 180
+  periodSeconds: 10
+
+readinessProbe:
+  path: "actuator/health/readiness"
+  initialDelaySeconds: 150
+  periodSeconds: 10
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30086
+
+gateway_service:
+  namespace: istio-gateway
+
+
+httprouts:
+  hostnames: ["hrms.anasolconsultancyservices.com"]
+  path: "/api/ticket"
+  timeout_request: "4s"
+  retry_codes: [500, 502, 503, 504]
+  retry_attempts: 3
+  retry_backoff: "1s"
+
+serviceAccount:
+  annotations:
+    example.com/annotation: "value"
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "endpoints"]
+      verbs: ["get", "list", "watch"]
+
+argo_cd:
+  helm_url: 'https://koteshwarchinnolla.github.io/helm-utilities/charts'
+  chart_name: hrms-microservices
+  chart_version: 0.1.0
+  path_to_values: Tickets/values.yaml
+  microservice_repo_url: 'https://github.com/KoteshwarChinnolla/TECHLIFE-BACKEND'
+  branch: main
+  destination_server: https://kubernetes.default.svc

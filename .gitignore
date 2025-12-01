@@ -1,0 +1,5 @@
+aws
+awscliv2.zip
+secrets.txt
+terraform/eks_cluster/.terraform
+terraform/eks_cluster/.terraform.lock.hcl

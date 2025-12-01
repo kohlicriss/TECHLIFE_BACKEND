@@ -1,0 +1,103 @@
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Calendar {
+  id: ID
+  date: Date
+  employeeId: String
+  effectiveHours: Duration
+  isPresent: String
+  event: String
+  description: String
+  day: String
+  holiday: Boolean
+  login: LocalTime
+  logout: LocalTime
+  mode: String
+  grossHours: Duration
+  firstSection: Boolean
+  secondSection: Boolean
+  considerPresent: Boolean
+}
+
+input CalendarInput {
+  startDate: Date!
+  endDate: Date!
+  event: String
+  description: String
+  holiday: Boolean
+}
+
+
+
+# Taking all the entities from the domain model
+
+type Leaves {
+  id: ID
+  employeeId: ID
+  isHalf_Day: Boolean
+  Leave_type: LeaveType
+  Leave_on: String
+  status: LeaveStatus
+  Request_By: String
+  Details: String
+  Action_Date: String
+  Rejection_Reason: String
+  Action: String
+}
+
+
+type Shift {
+    shiftName: String
+    startTime: LocalTime
+    endTime: LocalTime
+    halfTime: LocalTime
+    acceptedBreakTime: Duration
+    takeAttendanceAfter:Duration
+    employees: employees
+}
+
+type employees {
+    employeeId: String
+    month: ID
+    year: ID
+    totalWorkingDays: Float
+    daysPresent: Float
+    unpaidLeaves: Float
+}
+
+scalar Date
+scalar DateTime
+scalar LocalTime
+scalar Duration
+scalar Long
+
+
+type Query {
+  getAllEmployeeDetailsOnDates(date: Date!): [Calendar]
+  getDetailsBetweenDates(employeeId: String!,startDate: Date!, endDate: Date!) : [Calendar]
+
+
+}
+
+
+type Mutation {
+  addCalendarEntries(input: CalendarInput!): [Calendar]
+}
+
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LeaveType {
+  PAID
+  SICK
+  CASUAL
+  UNPAID
+}

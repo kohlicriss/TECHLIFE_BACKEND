@@ -1,0 +1,89 @@
+# --- Primary cluster ---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-cluster
+  namespace: cnpg-system
+spec:
+  instances: 3
+
+  postgresql:
+    parameters:
+      max_connections: "100"
+      shared_buffers: "256MB"
+      effective_cache_size: "768MB"
+      maintenance_work_mem: "64MB"
+      checkpoint_completion_target: "0.9"
+      wal_buffers: "16MB"
+      default_statistics_target: "100"
+      random_page_cost: "1.1"
+      effective_io_concurrency: "200"
+      work_mem: "2621kB"
+      min_wal_size: "1GB"
+      max_wal_size: "4GB"
+
+  storage:
+    size: 10Gi
+    storageClass: "gp2"
+
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "0.5"
+    limits:
+      memory: "2Gi"
+      cpu: "1"
+
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://hrms-postgress-bucket/"
+      endpointURL: "https://s3.ap-south-1.amazonaws.com"
+      s3Credentials:
+        accessKeyId:
+          name: aws-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: aws-creds
+          key: SECRET_ACCESS_KEY
+      wal:
+        compression: gzip
+    retentionPolicy: "7d"
+
+  replicationSlots:
+    highAvailability:
+      enabled: true
+
+  # bootstrap:
+  #   recovery:
+  #     source: previous-cluster
+
+  # externalClusters:
+  #   - name: previous-cluster
+  #     barmanObjectStore:
+  #       destinationPath: "s3://hrms-postgress-bucket/backups"
+  #       endpointURL: "https://s3.ap-south-1.amazonaws.com"
+  #       s3Credentials:
+  #         accessKeyId:
+  #           name: aws-creds
+  #           key: ACCESS_KEY_ID
+  #         secretAccessKey:
+  #           name: aws-creds
+  #           key: SECRET_ACCESS_KEY
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+
+---
+
+# --- Scheduled backup job ---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: postgres-scheduled-backup
+  namespace: cnpg-system
+spec:
+  schedule: "0 14 * * *"
+  cluster:
+    name: postgres-cluster
+  immediate: true

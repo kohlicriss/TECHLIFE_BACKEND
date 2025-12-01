@@ -1,0 +1,39 @@
+distributor:
+  ring:
+    kvstore:
+      store: memberlist
+ingester:
+  ring:
+    kvstore:
+      store: memberlist
+      
+querier:
+  query_timeout: 1m
+
+
+storage:
+  trace:
+    backend: s3
+    s3:
+      bucket: hrms-observability-bucket
+      endpoint: s3.ap-south-1.amazonaws.com
+      insecure: false 
+      access_key: ${access-key-id}
+      secret_key: ${secret-access-key}
+
+
+extraEnvFrom:
+  - secretRef:
+      name: tempo-s3-credentials
+
+
+traces:
+  otlp:
+    grpc:
+      enabled: true 
+    http:
+      enabled: true
+
+
+service:
+  type: ClusterIP

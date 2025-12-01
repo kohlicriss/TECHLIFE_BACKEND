@@ -1,0 +1,106 @@
+
+replicaCount: 1
+
+microservice:
+  name: notifications
+  namespace: hrms
+  port: 8085
+
+
+image:
+  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/notifications
+  pullPolicy: IfNotPresent
+  tag: "v1.2.0"
+
+env:
+  APPLICATION_NAME: Notifications
+  DATABASE_URL: jdbc:postgresql://postgres-cluster-rw.cnpg-system.svc.cluster.local:5432/app
+  JPA_HIBERNATE_DDL_AUTO: update
+
+  CACHE_TYPE: redis
+  DATA_REDIS_SENTINEL_MASTER: mymaster
+  DATA_REDIS_PASSWORD: RedisPasswordMaster
+  DATA_REDIS_SENTINEL_NODES: sentinel-access.redis.svc.cluster.local:5000
+  SERVER_ADDRESS: 0.0.0.0
+  SERVER_PORT: 8085
+  MAIL_HOST: email-smtp.eu-north-1.amazonaws.com
+  SMTP_PORT: 587
+  FROM_EMAIL_ADDRESS: no-reply@anasolconsultancyservices.com
+  
+
+
+envFromSecret:
+  # DATABASE_URL:
+  #   name: postgres-credentials
+  #   key: POSTGRES_URL
+  DB_USERNAME:
+    name: postgres-credentials
+    key: POSTGRES_USER
+  DB_PASSWORD:
+    name: postgres-credentials
+    key: POSTGRES_PASSWORD
+  MAIL_USERNAME:
+    name: notification-aws-secret
+    key: smtp-username
+  MAIL_PASSWORD:
+    name: notification-aws-secret
+    key: smtp-password
+  
+
+resources: 
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+livenessProbe:
+  path: "actuator/health/liveness"
+  initialDelaySeconds: 90
+  periodSeconds: 10
+
+readinessProbe:
+  path: "actuator/health/readiness"
+  initialDelaySeconds: 80
+  periodSeconds: 10
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30083
+
+gateway_service:
+  namespace: istio-gateway
+
+
+httprouts:
+  hostnames: ["hrms.anasolconsultancyservices.com"]
+  path: "/api/notification"
+  timeout_request: "3s"
+  retry_codes: [500, 502, 503, 504]
+  retry_attempts: 3
+  retry_backoff: "1s"
+
+serviceAccount:
+  annotations:
+    example.com/annotation: "value"
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "endpoints"] 
+      verbs: ["get", "list", "watch"]
+
+argo_cd:
+  helm_url: 'https://koteshwarchinnolla.github.io/helm-utilities/charts'
+  chart_name: hrms-microservices
+  chart_version: 0.1.0
+  path_to_values: Notifications/values.yaml
+  microservice_repo_url: 'https://github.com/KoteshwarChinnolla/TECHLIFE-BACKEND'
+  branch: main
+  destination_server: https://kubernetes.default.svc

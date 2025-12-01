@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-service-monitor
+  labels:
+      release: monitoring
+  namespace: argocd
+spec:
+  endpoints:
+    - interval: 15s
+      port: metrics
+      scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+      - argocd
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-metrics
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/part-of: argocd

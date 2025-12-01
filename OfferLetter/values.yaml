@@ -1,0 +1,109 @@
+replicaCount: 1
+
+microservice:
+  name: offerletter
+  namespace: hrms
+  port: 8087
+
+####
+image:
+  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/offerletter
+  pullPolicy: IfNotPresent
+  tag: "v1.0.2"
+
+env:
+  DB_URL : dbc:postgresql://hrms.anasolconsultancyservices.com:5432/app
+  DB_USERNAME : app
+  DB_PASSWORD : HrmAnasolDb
+  SERVER_ADDRESS : 0.0.0.0
+  SERVER_PORT : 8087
+  ALLOWED_ORIGINS : http://localhost:3000,http://192.168.0.247:3000,https://techlife.anasolconsultancyservices.com,http://localhost:5173
+
+  SPRING_SHOW_SQL : update
+
+  SCHEMA : payroll
+
+##
+envFromSecret:
+  DB_URL:
+    name: postgres-credentials
+    key: POSTGRES_URL
+  DB_USERNAME:
+    name: postgres-credentials
+    key: POSTGRES_USER
+  DB_PASSWORD:
+    name: postgres-credentials
+    key: POSTGRES_PASSWORD
+  ATTENDANCE_PASSWORD:
+    name: postgres-credentials
+    key: POSTGRES_PASSWORD
+
+
+#envFromSecret:
+#  DB_USERNAME
+#    name: notification-db-secret
+#    key: username
+#  DB_PASSWORD:
+#    name: notification-db-secret
+#    key: passwor
+
+
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+livenessProbe:
+  path: "actuator/health/liveness"
+  initialDelaySeconds: 180
+  periodSeconds: 10
+
+readinessProbe:
+  path: "actuator/health/readiness"
+  initialDelaySeconds: 150
+  periodSeconds: 10
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30087
+
+gateway_service:
+  namespace: istio-gateway
+
+
+httprouts:
+  hostnames: ["hrms.anasolconsultancyservices.com"]
+  path: "/api/payroll"
+  timeout_request: "4s"
+  retry_codes: [500, 502, 503, 504]
+  retry_attempts: 3
+  retry_backoff: "1s"
+
+serviceAccount:
+  annotations:
+    example.com/annotation: "value"
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "endpoints"]
+      verbs: ["get", "list", "watch"]
+
+argo_cd:
+  helm_url: 'https://koteshwarchinnolla.github.io/helm-utilities/charts'
+  chart_name: hrms-microservices
+  chart_version: 0.1.0
+  path_to_values: OfferLetter/values.yaml
+  microservice_repo_url: 'https://github.com/KoteshwarChinnolla/TECHLIFE-BACKEND'
+  branch: main
+  destination_server: https://kubernetes.default.svc

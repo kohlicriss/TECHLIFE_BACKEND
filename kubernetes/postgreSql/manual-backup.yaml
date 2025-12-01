@@ -1,0 +1,8 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: manual-backup-before-delete
+  namespace: cnpg-system
+spec:
+  cluster:
+    name: postgres-cluster

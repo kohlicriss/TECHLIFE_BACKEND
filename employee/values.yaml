@@ -1,0 +1,109 @@
+replicaCount: 1
+
+microservice:
+  name: employee
+  namespace: hrms
+  port: 8090
+
+image:
+  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/employee
+  pullPolicy: IfNotPresent
+  tag: "v1.3.9"
+
+env:
+  # Application
+  SPRING_APPLICATION_NAME: project
+  SERVER_PORT: 8090
+  SERVER_ADDRESS: 0.0.0.0
+
+  # Database
+  # SPRING_DATASOURCE_URL: jdbc:postgresql://hrmdb.c3ykgskuuzr8.ap-south-1.rds.amazonaws.com:5432/postgres
+  SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: employee
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+  SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  SPRING_JPA_SHOW_SQL: true
+  SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+
+  # File Uploads
+  SPRING_SERVLET_MULTIPART_ENABLED: true
+  SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 50MB
+  SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 100MB
+
+  # AWS
+  CLOUD_AWS_REGION_STATIC: ap-south-1
+  CLOUD_AWS_S3_BUCKET: techlifeacs
+
+envFromSecret:
+  SPRING_DATASOURCE_URL:
+    name: postgres-credentials
+    key: POSTGRES_URL
+  SPRING_DATASOURCE_USERNAME:
+    name: postgres-credentials
+    key: POSTGRES_USER
+  SPRING_DATASOURCE_PASSWORD:
+    name: postgres-credentials
+    key: POSTGRES_PASSWORD
+  CLOUD_AWS_CREDENTIALS_ACCESSKEY:
+    name: employee-aws-access
+    key: aws-access-key
+  CLOUD_AWS_CREDENTIALS_SECRETKEY:
+    name: employee-aws-access
+    key: aws-secret-key
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+livenessProbe:
+  path: "actuator/health/liveness"
+  initialDelaySeconds: 180
+  periodSeconds: 10
+
+readinessProbe:
+  path: "actuator/health/readiness"
+  initialDelaySeconds: 150
+  periodSeconds: 10
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30081
+
+gateway_service:
+  namespace: istio-gateway
+
+httprouts:
+  hostnames: ["hrms.anasolconsultancyservices.com"]
+  path: "/api/employee"
+  timeout_request: "2s"
+  retry_codes: [500, 502, 503, 504]
+  retry_attempts: 3
+  retry_backoff: "1s"
+
+serviceAccount:
+  annotations:
+    example.com/annotation: "value"
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "endpoints", "services", "secrets", "configmaps"]
+      verbs: ["get", "list", "watch"]
+
+argo_cd:
+  helm_url: "https://koteshwarchinnolla.github.io/helm-utilities/charts"
+  chart_name: hrms-microservices
+  chart_version: 0.1.0
+  path_to_values: employee/values.yaml
+  microservice_repo_url: "https://github.com/KoteshwarChinnolla/TECHLIFE-BACKEND"
+  branch: main
+  destination_server: https://kubernetes.default.svc

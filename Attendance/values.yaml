@@ -1,0 +1,107 @@
+
+replicaCount: 1
+
+microservice:
+  name: attendance
+  namespace: hrms
+  port: 8091
+
+image:
+  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/attendance
+  pullPolicy: IfNotPresent
+  tag: "v1.3.4"
+##
+env:
+  SPRING_APPLICATION_NAME: RealTime-Attendence
+  SERVER_PORT: 8091
+  SERVER_ADDRESS: 0.0.0.0
+
+  DB_DRIVER: org.postgresql.Driver
+
+  #JPA config
+  JPA_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+  JPA_DDL_AUTO: update
+  JPA_SHOW_SQL: true
+  GRAPHQL_BASE_URL: /api/attendance/graphql
+  # Cache
+  CACHE_TYPE: redis
+  REDIS_TTL: 10m
+  REDIS_CACHE_NULL: false
+  DATA_REDIS_SENTINEL_MASTER: mymaster
+  DATA_REDIS_PASSWORD: RedisPasswordMaster
+  DATA_REDIS_SENTINEL_NODES: sentinel-access.redis.svc.cluster.local:5000
+  QUARTZ_INIT_SCHEMA: never
+
+envFromSecret:
+  DB_URL:
+    name: postgres-credentials
+    key: POSTGRES_URL
+  DB_USERNAME:
+    name: postgres-credentials
+    key: POSTGRES_USER
+  DB_PASSWORD:
+    name: postgres-credentials
+    key: POSTGRES_PASSWORD
+  PAYROLL_PASSWARD:
+    name: postgres-credentials
+    key: POSTGRES_PASSWORD
+
+## k8s
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 9
+  targetCPUUtilizationPercentage: 80
+
+livenessProbe:
+  path: "actuator/health/liveness"
+  initialDelaySeconds: 90
+  periodSeconds: 10
+
+readinessProbe:
+  path: "actuator/health/readiness"
+  initialDelaySeconds: 60
+  periodSeconds: 10
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30091
+
+gateway_service:
+  namespace: istio-gateway
+
+
+httprouts:
+  hostnames: ["hrms.anasolconsultancyservices.com"]
+  path: "/api/attendance/"
+  timeout_request: "3s"
+  retry_codes: [500, 502, 503, 504, 408]
+  retry_attempts: 3
+  retry_backoff: "2s"
+
+serviceAccount:
+  annotations:
+    example.com/annotation: "value"
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "endpoints", "services", "secrets", "configmaps"]
+      verbs: ["get", "list", "watch"]
+
+argo_cd:
+  helm_url: 'https://koteshwarchinnolla.github.io/helm-utilities/charts'
+  chart_name: hrms-microservices
+  chart_version: 0.1.0
+  path_to_values: Attendance/values.yaml
+  microservice_repo_url: 'https://github.com/KoteshwarChinnolla/TECHLIFE-BACKEND'
+  branch: main
+  destination_server: https://kubernetes.default.svc
