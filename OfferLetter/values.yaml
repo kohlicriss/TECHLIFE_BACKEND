@@ -7,7 +7,7 @@ microservice:
 
 #
 image:
-  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/offerletter
+  repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/offerletter
   pullPolicy: IfNotPresent
   tag: "v1.0.2"
 
