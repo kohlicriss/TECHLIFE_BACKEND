@@ -22,7 +22,7 @@ env:
   # SPRING_DATASOURCE_PASSWORD: HrmAnasolDb
   SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
 
-###
+##
 
   CACHE_TYPE: redis
   DATA_REDIS_SENTINEL_MASTER: mymaster

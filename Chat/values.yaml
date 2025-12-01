@@ -11,7 +11,7 @@ image:
   repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/hrms/chat
   pullPolicy: IfNotPresent
   tag: "v1.3.3"
-#
+
 env:
   SPRING_APPLICATION_NAME: chat-service
 

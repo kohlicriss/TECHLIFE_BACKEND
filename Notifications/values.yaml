@@ -31,7 +31,7 @@ env:
 
 envFromSecret:
   # DATABASE_URL:
-  #   name: postgres-credentials
+  #   name: postgrs-credentials
   #   key: POSTGRES_URL
   DB_USERNAME:
     name: postgres-credentials
