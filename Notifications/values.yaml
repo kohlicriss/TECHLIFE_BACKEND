@@ -10,11 +10,10 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/notifications
   pullPolicy: IfNotPresent
-  tag: "v1.2.0"
+  tag: "v1.2.1"
 
 env:
   APPLICATION_NAME: Notifications
-  DATABASE_URL: jdbc:postgresql://postgres-cluster-rw.cnpg-system.svc.cluster.local:5432/app
   JPA_HIBERNATE_DDL_AUTO: update
 
   CACHE_TYPE: redis
@@ -30,9 +29,9 @@ env:
 
 
 envFromSecret:
-  # DATABASE_URL:
-  #   name: postgrs-credentials
-  #   key: POSTGRES_URL
+  DATABASE_URL:
+    name: postgres-credentials
+    key: POSTGRES_URL
   DB_USERNAME:
     name: postgres-credentials
     key: POSTGRES_USER

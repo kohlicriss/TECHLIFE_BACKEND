@@ -9,7 +9,7 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/tickets
   pullPolicy: IfNotPresent
-  tag: "v1.2.9"
+  tag: "v1.3.0"
 
 env:
   SERVER_PORT: 8088

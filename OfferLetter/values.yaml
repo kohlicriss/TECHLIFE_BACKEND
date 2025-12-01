@@ -9,7 +9,7 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/offerletter
   pullPolicy: IfNotPresent
-  tag: "v1.0.2"
+  tag: "v1.0.3"
 
 env:
   DB_URL : dbc:postgresql://hrms.anasolconsultancyservices.com:5432/app
