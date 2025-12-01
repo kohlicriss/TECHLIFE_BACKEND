@@ -15,7 +15,7 @@ image:
 env:
   SPRING_APPLICATION_NAME: chat-service
 
-  # Server
+  # Serve
   SERVER_PORT: 8083
   SERVER_ADDRESS: 0.0.0.0
 
