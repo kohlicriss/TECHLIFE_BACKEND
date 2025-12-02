@@ -8,7 +8,7 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/employee
   pullPolicy: IfNotPresent
-  tag: "v1.4.0"
+  tag: "v1.3.9"
 
 env:
   # Application j

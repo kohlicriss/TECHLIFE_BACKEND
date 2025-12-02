@@ -9,7 +9,7 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/attendance
   pullPolicy: IfNotPresent
-  tag: "v1.3.5"
+  tag: "v1.3.4"
 #
 env:
   SPRING_APPLICATION_NAME: RealTime-Attendence
