@@ -32,7 +32,7 @@ public class AuthController {
     private final MobileOtpService mobileOtpService;
     @PostMapping("/register")
     @CheckPermission("PERMISSIONS_BUTTONS")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request, @RequestHeader String Authorization) {
        customFeignContext.setToken(Authorization);
         authService.registerUser(request);
         return ResponseEntity.ok(Map.of("message", "User registered successfully"));
