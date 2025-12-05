@@ -9,6 +9,7 @@ import com.auth.jwtsecurity.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,9 +17,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
@@ -57,10 +60,10 @@ public class AuthService {
                 .phoneNumber(registerRequest.getPhoneNumber())
                 .build();
 
-        Tickets tickets = Tickets.builder()
-                        .employeeId(username)
-                                .roles(registerRequest.getRole())
-                                        .build();
+//        Tickets tickets = Tickets.builder()
+//                        .employeeId(username)
+//                                .roles(registerRequest.getRole())
+//                                        .build();
 //        ResponseEntity<Tickets> re = ticketsUpdate.createAuth(tickets);
 //        if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
         userRepository.save(user);
@@ -90,14 +93,40 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public TokenPair login(@Valid LoginRequest loginRequest) {
+    public TokenPair login(@Valid LoginRequest loginRequest) throws BadRequestException {
+
+        Optional<User> userOptional = Optional.empty();
+
+        if (loginRequest.getUsername() != null && !loginRequest.getUsername().isBlank()) {
+            userOptional = userRepository.findByUsername(loginRequest.getUsername().toLowerCase().trim());
+        } else if (loginRequest.getEmail() != null && !loginRequest.getEmail().isBlank()) {
+            userOptional = userRepository.findByEmail(loginRequest.getEmail().trim());
+        } else if (loginRequest.getPhone() != null && !loginRequest.getPhone().isBlank()) {
+            userOptional = userRepository.findByPhoneNumber(loginRequest.getPhone().trim());
+        } else {
+            throw new BadRequestException("At least one field (username, email, phone) must be provided");
+        }
+
+        if (userOptional.isEmpty()) {
+            throw new UsernameNotFoundException("Invalid login details");
+        }
+
+        User user = userOptional.get();
+
+        String loginUsername = user.getUsername().toLowerCase().trim();
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername().toLowerCase().trim(),
-                        loginRequest.getPassword()));
+                        loginUsername,
+                        loginRequest.getPassword()
+                )
+        );
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         return jwtService.generateTokenPair(authentication);
     }
+
 
     public TokenPair refreshTokenFromCookie(String refreshToken) {
         if (!jwtService.isRefreshToken(refreshToken)) {

@@ -10,11 +10,13 @@ import com.auth.jwtsecurity.repository.UserRepository;
 import com.auth.jwtsecurity.security.CheckPermission;
 import com.auth.jwtsecurity.service.AuthService;
 import com.auth.jwtsecurity.service.MobileOtpService;
+import feign.FeignException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -30,8 +32,8 @@ public class AuthController {
     private final MobileOtpService mobileOtpService;
     @PostMapping("/register")
     // @CheckPermission("PERMISSIONS_BUTTONS")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request, @RequestHeader String Authorization) {
-        customFeignContext.setToken(Authorization);
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
+//        customFeignContext.setToken(Authorization);
         authService.registerUser(request);
         return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }
@@ -54,7 +56,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws BadRequestException {
+        if(loginRequest.getEmail() == null && loginRequest.getPhone() == null && loginRequest.getUsername() == null) {
+            throw new BadRequestException("One of username, phonenumber, email must be provided");
+        }
         TokenPair tokenPair = authService.login(loginRequest);
         //  token cookie part in http
         Cookie refreshTokenCookie = new Cookie("refreshToken", tokenPair.getRefreshToken());
@@ -100,12 +105,22 @@ public class AuthController {
         ));
     }
 
+    @PutMapping("/SendOTPPhone")
+    public ResponseEntity<Map<String, String>> SendingOtpPhone(@RequestParam(defaultValue = "np") String phone, @RequestParam(defaultValue = "np") String userName) throws Exception {
+        String encrypted = mobileOtpService.sendOtpToUserPhone(userName, phone);
+
+        return ResponseEntity.ok(Map.of("token", encrypted));
+    }
+
     @PutMapping("/SendOTP")
-    public ResponseEntity<String> SendingOtp(@RequestParam(defaultValue = "np") String phone, @RequestParam(defaultValue = "np") String userName) throws Exception {
-        String encrypted = mobileOtpService.sendOtpToUser(userName, phone);
-        return ResponseEntity.ok()
-                .header("X_OTP_Token", encrypted)
-                .body("otp_sent");
+    public ResponseEntity<Map<String, String>> SendingOtp(@RequestParam(defaultValue = "np") String mail, @RequestParam(defaultValue = "np") String userName, @RequestParam(defaultValue = "np") String phone) throws Exception {
+        String encrypted = mobileOtpService.OtpSender(userName, mail, phone);
+        return ResponseEntity.ok(Map.of("token", encrypted));
+    }
+    @PutMapping("/SendOTPMail")
+    public ResponseEntity<Map<String, String>> SendingOtpMail(@RequestParam(defaultValue = "np") String mail, @RequestParam(defaultValue = "np") String userName) throws Exception {
+        String encrypted = mobileOtpService.sendOtpToUserEmail(userName, mail);
+        return ResponseEntity.ok(Map.of("token", encrypted));
     }
 
     @PutMapping("/VerifyOTP")

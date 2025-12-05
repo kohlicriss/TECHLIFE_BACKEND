@@ -8,8 +8,8 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/authentication
   pullPolicy: IfNotPresent
-  tag: "v1.2.7"
-#
+  tag: "v1.2.8"
+##
 env:
   # SPRING_DATAOURCE_URL: jdbc:postgresql://hrmdb.c3ykgskuuzr8.ap-south-1.rds.amazonaws.com:5432/postgres
   SPRING_DATASOURCE_SCHEMA: auth
@@ -23,6 +23,14 @@ env:
 
   APP_CORS_ALLOWED_ORIGINS: http://localhost:3000,http://hrms.anasolconsultancyservices.com,https://hrms.anasolconsultancyservices.com,https://techlife.anasolconsultancyservices.com
 
+  AWS_REGION: ap-south-1
+
+  SPRING_MAIL_HOST: smtp.gmail.com
+  SPRING_MAIL_PORT: 587
+  SPRING_MAIL_USERNAME: principal2605@gmail.com
+  SPRING_MAIL_PASSWORD: nntygjddorrqwvuz
+  SPRING_MAIL_SMTP_AUTH: true
+  SPRING_MAIL_SMTP_STARTTLS: true
 
   LOGGING_LEVEL_ROOT: INFO
   LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: WARN
@@ -39,10 +47,10 @@ envFromSecret:
   SPRING_DATASOURCE_PASSWORD:
     name: postgres-credentials
     key: POSTGRES_PASSWORD
-  AWS_ACCESS_KEY_ID:
+  AWS_ACCESS_KEY:
     name: employee-aws-access
     key: aws-access-key
-  AWS_SECRET_ACCESS_KEY:
+  AWS_SECRET_KEY:
     name: employee-aws-access
     key: aws-secret-key
 resources:
@@ -53,6 +61,14 @@ resources:
     cpu: 100m
     memory: 128Mi
 
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations:
+  - key: "arch"
+    operator: "Equal"
+    value: "x86"
+    effect: "PreferNoSchedule"
 
 autoscaling:
   enabled: false
