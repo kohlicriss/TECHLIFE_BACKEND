@@ -42,7 +42,7 @@ public class AuthController {
     @CheckPermission("PERMISSIONS_BUTTONS")
     public ResponseEntity<?> deleteUser(@PathVariable String userId, @RequestHeader String Authorization) {
         customFeignContext.setToken(Authorization);
-        authService.deleteUser(userId);
+        authService.deleteUser(userId.toLowerCase());
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 

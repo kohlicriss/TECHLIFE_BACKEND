@@ -8,8 +8,8 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/authentication
   pullPolicy: IfNotPresent
-  tag: "v1.2.9"
-#
+  tag: "v1.3.0"
+##
 env:
   # SPRING_DATAOURCE_URL: jdbc:postgresql://hrmdb.c3ykgskuuzr8.ap-south-1.rds.amazonaws.com:5432/postgres
   SPRING_DATASOURCE_SCHEMA: auth
