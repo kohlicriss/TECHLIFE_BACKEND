@@ -60,18 +60,18 @@ public class AuthService {
                 .phoneNumber(registerRequest.getPhoneNumber())
                 .build();
 
-//        Tickets tickets = Tickets.builder()
-//                        .employeeId(username)
-//                                .roles(registerRequest.getRole())
-//                                        .build();
-//        ResponseEntity<Tickets> re = ticketsUpdate.createAuth(tickets);
-//        if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
+       Tickets tickets = Tickets.builder()
+                       .employeeId(username.toUpperCase().trim())
+                               .roles(registerRequest.getRole())
+                                       .build();
+       ResponseEntity<Tickets> re = ticketsUpdate.createAuth(tickets);
+       if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
         userRepository.save(user);
     }
 
     public void deleteUser(String id) {
         User user = userRepository.findByUsername(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        ResponseEntity<Void> re = ticketsUpdate.deleteAuth(user.getUsername());
+        ResponseEntity<Void> re = ticketsUpdate.deleteAuth(user.getUsername().toUpperCase());
         if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
         userRepository.delete(user);
     }
@@ -85,10 +85,10 @@ public class AuthService {
         user.setEmail(registerRequest.getEmail()!=null?registerRequest.getEmail(): user.getEmail());
         user.setRole(registerRequest.getRole()!=null?registerRequest.getRole() : user.getRole());
         Tickets tickets = Tickets.builder()
-                .employeeId(user.getUsername())
+                .employeeId(user.getUsername().toUpperCase())
                 .roles(registerRequest.getRole())
                 .build();
-        ResponseEntity<Tickets> re = ticketsUpdate.updateAuth(user.getUsername(),tickets);
+        ResponseEntity<Tickets> re = ticketsUpdate.updateAuth(user.getUsername().toUpperCase(),tickets);
         if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
         userRepository.save(user);
     }

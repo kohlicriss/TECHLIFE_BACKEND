@@ -31,9 +31,9 @@ public class AuthController {
     private final CustomFeignContext  customFeignContext;
     private final MobileOtpService mobileOtpService;
     @PostMapping("/register")
-    // @CheckPermission("PERMISSIONS_BUTTONS")
+    @CheckPermission("PERMISSIONS_BUTTONS")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
-//        customFeignContext.setToken(Authorization);
+       customFeignContext.setToken(Authorization);
         authService.registerUser(request);
         return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }
@@ -47,7 +47,7 @@ public class AuthController {
     }
 
     @PutMapping("/update/{userId}")
-    // @CheckPermission("PERMISSIONS_BUTTONS")
+    @CheckPermission("PERMISSIONS_BUTTONS")
     public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody UpdateRequest request, @RequestHeader String Authorization) {
         customFeignContext.setToken(Authorization);
         userId = userId.toUpperCase();
