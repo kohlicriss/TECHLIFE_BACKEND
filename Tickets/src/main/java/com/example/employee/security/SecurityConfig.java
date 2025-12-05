@@ -38,8 +38,8 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/actuator/**",
-                                // "/ws-ticket/**"
-                                "/api/ticket/ws/**"
+                                //"/ws-ticket/**"
+                                "/api/ticket/ws"
                         ).permitAll()
                          .requestMatchers("/api/**").authenticated()
 

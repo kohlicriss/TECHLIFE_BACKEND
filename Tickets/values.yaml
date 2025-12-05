@@ -1,3 +1,4 @@
+
 replicaCount: 1
 
 microservice:
@@ -9,13 +10,13 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/tickets
   pullPolicy: IfNotPresent
-  tag: "v1.3.2"
+  tag: "v1.3.3"
 
 env:
   SERVER_PORT: 8088
   SPRING_APPLICATION_NAME : employee
 
-##
+
 
   # SPRING_DATASOURCE_URL : jdbc:postgresql://chat-hrms.c3ykgskuuzr8.ap-south-1.rds.amazonaws.com:5432/postgres
   # SPRING_DATASOURCE_USERNAME: postgres
@@ -58,6 +59,15 @@ envFromSecret:
   SPRING_DATASOURCE_PASSWORD:
     name: postgres-credentials
     key: POSTGRES_PASSWORD
+
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations:
+  - key: "arch"
+    operator: "Equal"
+    value: "x86"
+    effect: "PreferNoSchedule"
 
 #envFromSecret:
 #  DB_USERNAME

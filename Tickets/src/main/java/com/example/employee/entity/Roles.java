@@ -7,6 +7,7 @@ public enum Roles {
     ROLE_EMPLOYEE,
     ROLE_ADMIN,
     ROLE_HR,
+    ROLE_TEAM_LEAD,
     ROLE_MANAGER;
 
     @JsonCreator

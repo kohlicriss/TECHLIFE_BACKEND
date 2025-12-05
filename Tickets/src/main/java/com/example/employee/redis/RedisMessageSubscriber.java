@@ -1,6 +1,7 @@
 package com.example.employee.redis;
 
 import com.example.employee.WebSocket.TicketWebSocketHandler;
+import com.example.employee.WebSocket.UnifiedTicketWebSocketHandler;
 import com.example.employee.dto.TicketDTO;
 import com.example.employee.dto.TicketReplyDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,10 +14,10 @@ import org.springframework.stereotype.Service;
 public class RedisMessageSubscriber implements MessageListener {
 
     private final ObjectMapper objectMapper;
-    private final TicketWebSocketHandler ticketWebSocketHandler;
+    private final UnifiedTicketWebSocketHandler ticketWebSocketHandler;
 
     public RedisMessageSubscriber(ObjectMapper objectMapper,
-                                  TicketWebSocketHandler ticketWebSocketHandler) {
+                                  UnifiedTicketWebSocketHandler ticketWebSocketHandler) {
         this.objectMapper = objectMapper;
         this.ticketWebSocketHandler = ticketWebSocketHandler;
         this.objectMapper.registerModule(new JavaTimeModule());

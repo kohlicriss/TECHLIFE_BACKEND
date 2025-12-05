@@ -36,7 +36,7 @@ public class EmployeeController {
    // @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER', 'TEAM_LEAD','EMPLOYEE')")
 
     @PostMapping("/create")
-    @CheckPermission("CREATE_TICKET")
+    // @CheckPermission("CREATE_TICKET")
     public ResponseEntity<TicketDTO> createTicket(@RequestBody TicketDTO dto) {
        Ticket savedTicket = ticketService.createTicket(
         dto.getEmployeeId(),

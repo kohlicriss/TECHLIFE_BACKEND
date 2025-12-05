@@ -46,19 +46,19 @@ public class AdminController {
     public ResponseEntity<PageResponseDTO<TicketDTO>> getTicketsByEmployee(
             @PathVariable String employeeId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50 ") int size
+            @RequestParam(defaultValue = "5") int size
     ) {
         return ResponseEntity.ok(ticketService.getTicketsByEmployeePaginated(employeeId, page, size));
     }
 
    
     @GetMapping("/tickets/role/{roles}/{employeeId}")
-    @CheckPermission(
-            value = "VIEW_ASSIGNED",
-            MatchParmName = "employeeId",
-            MatchParmFromUrl = "employeeId",
-            MatchParmForRoles = {"ROLE_HR","ROLE_MANAGER","ROLE_ADMIN"}
-    )
+    // @CheckPermission(
+    //         value = "VIEW_ASSIGNED",
+    //         MatchParmName = "employeeId",
+    //         MatchParmFromUrl = "employeeId",
+    //         MatchParmForRoles = {"ROLE_HR","ROLE_MANAGER","ROLE_ADMIN"}
+    // )
    // @PreAuthorize("hasAnyRole('ADMIN', 'HR','MANAGER')")
     public ResponseEntity<PageResponseDTO<TicketDTO>> getTicketsByRoleOnly(
             @PathVariable String roles,

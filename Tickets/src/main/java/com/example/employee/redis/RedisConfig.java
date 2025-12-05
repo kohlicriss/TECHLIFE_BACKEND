@@ -73,30 +73,30 @@ public class RedisConfig {
                 .build();
     }
 
-    // @Bean
-    // public LettuceConnectionFactory redisConnectionFactory() {
-    //     // Connect to Redis on localhost:6379 (no Sentinel)
-    //     return new LettuceConnectionFactory("localhost", 6379);
-    // }
+    //  @Bean
+    //  public LettuceConnectionFactory redisConnectionFactory() {
+    //      // Connect to Redis on localhost:6379 (no Sentinel)
+    //      return new LettuceConnectionFactory("localhost", 6379);
+    //  }
 
-    @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-        RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
-                .master(redisProperties.getSentinel().getMaster());
+   @Bean
+   public LettuceConnectionFactory redisConnectionFactory() {
+       RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
+               .master(redisProperties.getSentinel().getMaster());
 
-        for (String s : redisProperties.getSentinel().getNodes()) {
-            String[] parts = s.split(":");
-            if (parts.length != 2) {
-                throw new IllegalArgumentException("Invalid sentinel node: " + s);
-            }
-            sentinelConfig.sentinel(parts[0], Integer.parseInt(parts[1]));
-        }
+       for (String s : redisProperties.getSentinel().getNodes()) {
+           String[] parts = s.split(":");
+           if (parts.length != 2) {
+               throw new IllegalArgumentException("Invalid sentinel node: " + s);
+           }
+           sentinelConfig.sentinel(parts[0], Integer.parseInt(parts[1]));
+       }
 
-        // This sets the password for Redis master
-        sentinelConfig.setPassword(RedisPassword.of(redisProperties.getPassword()));
+       // This sets the password for Redis master
+       sentinelConfig.setPassword(RedisPassword.of(redisProperties.getPassword()));
 
-        return new LettuceConnectionFactory(sentinelConfig);
-    }
+       return new LettuceConnectionFactory(sentinelConfig);
+   }
 
 
     @Bean
