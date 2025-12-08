@@ -1,7 +1,7 @@
 name: Destroy EKS Cluster using Terraform from AWS
 on:
-  schedule:
-    - cron: "29 14 * * *"
+  # schedule:
+  #   - cron: "29 14 * * *"
 
   workflow_dispatch:
 
