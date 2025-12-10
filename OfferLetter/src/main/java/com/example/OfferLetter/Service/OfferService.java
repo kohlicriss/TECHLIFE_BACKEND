@@ -110,7 +110,7 @@ public class OfferService {
                 offerDTO.setNetSalary(netSalary);
                 offerDTO.setAnnualSalary(annualSalaryInRupees);
                 offerDTO.setTotalSalaryPerMonth(grossEarnings);
-                offerDTO.setStipend(0.0);
+                offerDTO.setStipend(employee.getStipend());
 
             } catch (Exception e) {
 

@@ -1,11 +1,11 @@
 replicaCount: 1
 
 microservice:
-  name: offerletter
+  name: payroll
   namespace: hrms
   port: 8087
 
-#
+##
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/offerletter
   pullPolicy: IfNotPresent
@@ -47,6 +47,14 @@ envFromSecret:
 #    name: notification-db-secret
 #    key: passwor
 
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations:
+  - key: "arch"
+    operator: "Equal"
+    value: "x86"
+    effect: "PreferNoSchedule"
 
 
 resources:
