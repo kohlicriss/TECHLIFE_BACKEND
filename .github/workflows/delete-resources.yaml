@@ -1,7 +1,11 @@
 name: delete resources from aws
-on:
+# on:
   # schedule:
   #  - cron: "29 16 * * *"
+on:
+  push:
+    branches:
+      - xyz
   workflow_dispatch:
 
 jobs:
