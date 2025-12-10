@@ -37,10 +37,10 @@ public class RedisCacheConfig {
     public RedisCacheConfig(RedisProperties redisProperties) {
         this.redisProperties = redisProperties;
     }
-    //   @Bean
-    //   public LettuceConnectionFactory redisConnectionFactory() {
-    //       return new LettuceConnectionFactory("localhost", 6379);
-    //   }
+//       @Bean
+//       public LettuceConnectionFactory redisConnectionFactory() {
+//           return new LettuceConnectionFactory("localhost", 6379);
+//       }
   @Bean
   public LettuceConnectionFactory redisConnectionFactory() {
       RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()

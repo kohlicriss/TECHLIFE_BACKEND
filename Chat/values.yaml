@@ -10,7 +10,7 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/chat
   pullPolicy: IfNotPresent
-  tag: "v1.3.3"
+  tag: "v1.3.4"
 
 env:
   SPRING_APPLICATION_NAME: chat-service
@@ -87,6 +87,14 @@ envFromSecret:
     name: employee-aws-access
     key: aws-secret-key
 
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations:
+  - key: "arch"
+    operator: "Equal"
+    value: "x86"
+    effect: "PreferNoSchedule"
 
 resources: 
   limits:

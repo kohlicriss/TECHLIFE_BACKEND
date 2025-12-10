@@ -42,6 +42,7 @@ public class TeamService {
 
     /** Check if a given team exists */
 //    @Cacheable(value = "teamExists", key = "#teamId")
+ // src/main/java/com/app/chat_service/service/TeamService.java
     public boolean existsByTeamId(String teamId) {
     	
     	if(teamId==null || teamId.isBlank()) {
@@ -50,9 +51,15 @@ public class TeamService {
     	
         try {
             ResponseEntity<List<TeamResponse>> response = employeeClient.getTeamById(teamId);
+            // Team Service Call Success
             return response.getStatusCode().is2xxSuccessful() && response.getBody() != null && !response.getBody().isEmpty();
         } catch (Exception e) {
-        	throw new RuntimeException("Error while fetching team details: " + e.getMessage());
+            log.error("Error while fetching team details for {}: {}", teamId, e.getMessage());
+            // Feign/Network/External API error vaste, default ga false return cheyandi, 
+            // leda specific business exception ni throw cheyandi.
+            // Padi poyina RuntimeException ni ippudu throw cheyadam ledhu.
+            return false; 
+            // NOTE: Ee implementation 'Group not found' scenario ni 'Feilure to fetch group' scenario nundi separate cheyadaniki help chestundi.
         }
     }
 
