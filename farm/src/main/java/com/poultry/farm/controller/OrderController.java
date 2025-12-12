@@ -52,7 +52,7 @@ public class OrderController {
     }
 
     // POST: Admin approves/rejects order
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
     @PostMapping("/admin/update-status/{orderId}")
     public ResponseEntity<Order> updateOrderStatus(
             @PathVariable Long orderId,
@@ -63,7 +63,7 @@ public class OrderController {
     }
 
     // POST: Admin adds delivery details (when dispatching)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
     @PostMapping("/admin/add-delivery/{orderId}")
     public ResponseEntity<Order> addDeliveryDetails(
             @PathVariable Long orderId,
@@ -74,8 +74,8 @@ public class OrderController {
     }
 
     // POST: Admin marks order as delivered
-    @PostMapping("/admin/mark-delivered/{orderId}")
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
+    @PostMapping("/admin/mark-delivered/{orderId}")
     public ResponseEntity<Order> markAsDelivered(@PathVariable Long orderId) {
         Order order = orderService.markAsDelivered(orderId);
         return ResponseEntity.ok(order);
@@ -90,8 +90,8 @@ public class OrderController {
     }
 
     // GET: Vendor views their orders
-    @GetMapping("/vendor/my-orders/{phoneNumber}")
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
+    @GetMapping("/vendor/my-orders/{phoneNumber}")
     public ResponseEntity<List<Order>> getVendorOrders(@PathVariable String phoneNumber) {
         List<Order> orders = orderService.getOrdersByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(orders);
