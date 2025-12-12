@@ -8,7 +8,7 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/poultry/farm_auth
   pullPolicy: IfNotPresent
-  tag: "v1.0.1"
+  tag: "v1.0.2"
 
 env:
   SPRING_APPLICATION_NAME: farm

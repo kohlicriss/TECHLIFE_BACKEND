@@ -78,7 +78,7 @@ readinessProbe:
 service:
   type: NodePort
   port: 80
-  nodePort: 30099
+  nodePort: 30098
 
 gateway_service:
   namespace: istio-gateway
