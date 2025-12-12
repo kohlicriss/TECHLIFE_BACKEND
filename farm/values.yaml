@@ -9,7 +9,7 @@ image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/poultry/farm
   pullPolicy: IfNotPresent
   tag: "v1.0.0"
-#
+
 env:
   SPRING_APPLICATION_NAME: farm
 
