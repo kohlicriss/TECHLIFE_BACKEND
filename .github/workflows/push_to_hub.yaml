@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Cleanup build folder
-        run: |
-          ls -la ./
-          rm -rf ./* || true
-          rm -rf ./.??* || true
-          ls -la ./
+      # - name: Cleanup build folder
+      #   run: |
+      #     ls -la ./
+      #     rm -rf ./* || true
+      #     rm -rf ./.??* || true
+      #     ls -la ./
 
       - name: Checkout code
         uses: actions/checkout@v3

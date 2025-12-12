@@ -86,7 +86,7 @@ service:
 
 gateway_service:
   namespace: istio-gateway
-#some thing
+#some thin
 
 httprouts:
   hostnames: ["hrms.anasolconsultancyservices.com"]
