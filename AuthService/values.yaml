@@ -8,7 +8,7 @@ microservice:
 image:
   repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/poultry/farm_auth
   pullPolicy: IfNotPresent
-  tag: "v1.0.0"
+  tag: "v1.0.1"
 
 env:
   SPRING_APPLICATION_NAME: farm
@@ -112,3 +112,13 @@ argo_cd:
   microservice_repo_url: 'https://github.com/KoteshwarChinnolla/TECHLIFE-BACKEND'
   branch: poultry
   destination_server: https://kubernetes.default.svc
+
+
+# kubectl create ns poultry
+# helm upgrade --install farmauth hrms-helm/hrms-microservices -f ./AuthService/values.yaml --namespace hrms
+
+# creat the databse passwards
+# POSTGRESUser=$(kubectl get secret postgres-cluster-app -n cnpg-system -o jsonpath="{.data.username}" | base64 --decode)
+# POSTGRESPass=$(kubectl get secret postgres-cluster-app -n cnpg-system -o jsonpath="{.data.password}" | base64 --decode)
+# POSTGRESUrl="jdbc:postgresql://postgres-cluster-rw.cnpg-system.svc.cluster.local:5432/app"
+# kubectl create secret generic postgres-credentials --from-literal=POSTGRES_PASSWORD=${POSTGRESPass} --from-literal=POSTGRES_URL=${POSTGRESUrl} --from-literal=POSTGRES_USER=${POSTGRESUser} -n hrms || echo "secret already exists"
