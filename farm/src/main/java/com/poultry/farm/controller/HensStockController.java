@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/farm/hens")
+@RequestMapping("/api/farm")
 @CrossOrigin(origins = "*")
 public class HensStockController {
 
@@ -29,21 +29,21 @@ public class HensStockController {
 	private HensStockService hensStockService;
 
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping("/addStock")
+	@PostMapping("/hens/addStock")
 	public Batch addStock(@RequestBody HensStockRequestdto hensStockRequestdto) {
 
 		return hensStockService.addStock(hensStockRequestdto);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-	@GetMapping("/getStock")
+	@GetMapping("/hens/getStock")
 	public List<Batch> getStock() {
 
 		return hensStockService.getStock();
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
-	@PutMapping("/updateStock")
+	@PutMapping("/hens/updateStock")
 	public Batch updateStock(
 			@RequestParam Long id,
 			@RequestParam(required = false) Integer hens,

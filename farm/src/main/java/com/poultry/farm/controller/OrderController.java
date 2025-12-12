@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/farm/orders")
+@RequestMapping("/api/farm")
 @CrossOrigin(origins = "*")
 public class OrderController {
 
@@ -29,7 +29,7 @@ public class OrderController {
 
     // GET: Vendor views available batches
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    @GetMapping("/vendor/available-batches")
+    @GetMapping("/orders/vendor/available-batches")
     public ResponseEntity<List<Batch>> getAvailableBatches() {
         List<Batch> batches = batchService.getAvailableBatches();
         return ResponseEntity.ok(batches);
@@ -37,7 +37,7 @@ public class OrderController {
 
     // POST: Vendor places order (creates PENDING order)
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    @PostMapping("/vendor/place-order")
+    @PostMapping("/orders/vendor/place-order")
     public ResponseEntity<Order> placeVendorOrder(@RequestBody VendorOrderRequest request) {
         Order order = orderService.placeVendorOrder(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
@@ -45,7 +45,7 @@ public class OrderController {
 
     // GET: Admin views all pending orders
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    @GetMapping("/admin/allOrders")
+    @GetMapping("/orders/admin/allOrders")
     public ResponseEntity<List<Order>> getAllOrders() {
         List<Order> orders = orderService.getOrders();
         return ResponseEntity.ok(orders);
@@ -53,7 +53,7 @@ public class OrderController {
 
     // POST: Admin approves/rejects order
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    @PostMapping("/admin/update-status/{orderId}")
+    @PostMapping("/orders/admin/update-status/{orderId}")
     public ResponseEntity<Order> updateOrderStatus(
             @PathVariable Long orderId,
             @RequestBody AdminStatusUpdateRequest request) {
@@ -64,7 +64,7 @@ public class OrderController {
 
     // POST: Admin adds delivery details (when dispatching)
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    @PostMapping("/admin/add-delivery/{orderId}")
+    @PostMapping("/orders/admin/add-delivery/{orderId}")
     public ResponseEntity<Order> addDeliveryDetails(
             @PathVariable Long orderId,
             @RequestBody AdminDeliveryRequest request) {
@@ -75,7 +75,7 @@ public class OrderController {
 
     // POST: Admin marks order as delivered
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    @PostMapping("/admin/mark-delivered/{orderId}")
+    @PostMapping("/orders/admin/mark-delivered/{orderId}")
     public ResponseEntity<Order> markAsDelivered(@PathVariable Long orderId) {
         Order order = orderService.markAsDelivered(orderId);
         return ResponseEntity.ok(order);
@@ -83,7 +83,7 @@ public class OrderController {
 
     // GET: Get order by ID
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    @GetMapping("/{orderId}")
+    @GetMapping("/orders/{orderId}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long orderId) {
         Order order = orderService.getOrderById(orderId);
         return ResponseEntity.ok(order);
@@ -91,7 +91,7 @@ public class OrderController {
 
     // GET: Vendor views their orders
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    @GetMapping("/vendor/my-orders/{phoneNumber}")
+    @GetMapping("/orders/vendor/my-orders/{phoneNumber}")
     public ResponseEntity<List<Order>> getVendorOrders(@PathVariable String phoneNumber) {
         List<Order> orders = orderService.getOrdersByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(orders);
