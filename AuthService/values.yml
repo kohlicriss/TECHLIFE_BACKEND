@@ -1,23 +1,23 @@
 replicaCount: 1
 
 microservice:
-  name: farm
+  name: farm-auth
   namespace: poultry
-  port: 8083
+  port: 8081
 
 image:
-  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/poultry/farm
+  repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/poultry/farm_auth
   pullPolicy: IfNotPresent
   tag: "v1.0.0"
 
 env:
   SPRING_APPLICATION_NAME: farm
 
-  SERVER_PORT: "8083"
+  SERVER_PORT:  8083 
 
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://ep-rough-haze-a18iashw-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require"
-  SPRING_DATASOURCE_USERNAME: neondb_owner
-  SPRING_DATASOURCE_PASSWORD: npg_vWzZQdJ82Ppt
+  # SPRING_DATASOURCE_URL:  jdbc:postgresql://ep-rough-haze-a18iashw-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require 
+  # SPRING_DATASOURCE_USERNAME: neondb_owner
+  # SPRING_DATASOURCE_PASSWORD: npg_vWzZQdJ82Ppt
 
   SPRING_JPA_HIBERNATE_DEFAULT_SCHEMA: poultryfarm
 
@@ -33,10 +33,13 @@ env:
   MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health"
 
 envFromSecret:
-  DB_USERNAME:
+  SPRING_DATASOURCE_URL:
+    name: postgres-credentials
+    key: POSTGRES_URL
+  SPRING_DATASOURCE_USERNAME:
     name: postgres-credentials
     key: POSTGRES_USER
-  DB_PASSWORD:
+  SPRING_DATASOURCE_PASSWORD:
     name: postgres-credentials
     key: POSTGRES_PASSWORD
 
@@ -49,33 +52,45 @@ resources:
     cpu: 100m
     memory: 128Mi
 
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations:
+  - key: "arch"
+    operator: "Equal"
+    value: "x86"
+    effect: "PreferNoSchedule"
+
 autoscaling:
   enabled: false
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
+  # Optional:
+  # targetMemoryUtilizationPercentage: 75
 
 livenessProbe:
   path: "actuator/health/liveness"
-  initialDelaySeconds: 90
+  initialDelaySeconds: 180
   periodSeconds: 10
 
 readinessProbe:
   path: "actuator/health/readiness"
-  initialDelaySeconds: 80
+  initialDelaySeconds: 150
   periodSeconds: 10
 
 service:
   type: NodePort
   port: 80
-  nodePort: 30083
+  nodePort: 30099
 
 gateway_service:
   namespace: istio-gateway
+#some thing
 
 httprouts:
-  hostnames: ["poultry.example.com"]
-  path: "/api/farm"
+  hostnames: ["hrms.anasolconsultancyservices.com"]
+  path: "/api/farm_auth"
   timeout_request: "3s"
   retry_codes: [500, 502, 503, 504]
   retry_attempts: 3
@@ -89,3 +104,11 @@ serviceAccount:
       resources: ["pods", "services", "endpoints"]
       verbs: ["get", "list", "watch"]
 
+argo_cd:
+  helm_url: 'https://koteshwarchinnolla.github.io/helm-utilities/charts'
+  chart_name: hrms-microservices
+  chart_version: 0.1.0
+  path_to_values: farm/values.yaml
+  microservice_repo_url: 'https://github.com/KoteshwarChinnolla/TECHLIFE-BACKEND'
+  branch: poultry
+  destination_server: https://kubernetes.default.svc
