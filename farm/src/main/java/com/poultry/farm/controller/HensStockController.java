@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/hens")
+@RequestMapping("/api/farm/hens")
 @CrossOrigin(origins = "*")
 public class HensStockController {
 

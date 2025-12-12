@@ -5,18 +5,19 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/farm/pom.xml" />
-        <option value="$USER_HOME$/Pictures/polutryfarm/farm/pom.xml" />
-        <option value="$USER_HOME$/Downloads/polutryfarm/farm/pom.xml" />
+        <option value="$PROJECT_DIR$/../Pictures/polutryfarm/farm/pom.xml" />
+        <option value="$PROJECT_DIR$/../Downloads/polutryfarm/farm/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthService/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
-        <option value="$USER_HOME$/Downloads/polutryfarm/farm/pom.xml" />
-        <option value="$USER_HOME$/Pictures/polutryfarm/farm/pom.xml" />
+        <option value="$PROJECT_DIR$/../Downloads/polutryfarm/farm/pom.xml" />
+        <option value="$PROJECT_DIR$/../Pictures/polutryfarm/farm/pom.xml" />
       </set>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="24" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_24" default="true" project-jdk-name="24" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>

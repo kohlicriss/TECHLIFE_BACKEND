@@ -1,0 +1,91 @@
+replicaCount: 1
+
+microservice:
+  name: farm
+  namespace: poultry
+  port: 8083
+
+image:
+  repository: 435073375740.dkr.ecr.ap-south-1.amazonaws.com/poultry/farm
+  pullPolicy: IfNotPresent
+  tag: "v1.0.0"
+
+env:
+  SPRING_APPLICATION_NAME: farm
+
+  SERVER_PORT: "8083"
+
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://ep-rough-haze-a18iashw-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require"
+  SPRING_DATASOURCE_USERNAME: neondb_owner
+  SPRING_DATASOURCE_PASSWORD: npg_vWzZQdJ82Ppt
+
+  SPRING_JPA_HIBERNATE_DEFAULT_SCHEMA: poultryfarm
+
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  SPRING_JPA_SHOW_SQL: "false"
+  SPRING_JPA_HIBERNATE_NON_CONTEXTUAL_CREATION: "true"
+
+  APP_CORS_ALLOWED_ORIGINS: "*"
+
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+  MANAGEMENT_HEALTH_LIVENESSSTATE_ENABLED: "true"
+  MANAGEMENT_HEALTH_READINESSSTATE_ENABLED: "true"
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health"
+
+envFromSecret:
+  DB_USERNAME:
+    name: postgres-credentials
+    key: POSTGRES_USER
+  DB_PASSWORD:
+    name: postgres-credentials
+    key: POSTGRES_PASSWORD
+
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+livenessProbe:
+  path: "actuator/health/liveness"
+  initialDelaySeconds: 90
+  periodSeconds: 10
+
+readinessProbe:
+  path: "actuator/health/readiness"
+  initialDelaySeconds: 80
+  periodSeconds: 10
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30083
+
+gateway_service:
+  namespace: istio-gateway
+
+httprouts:
+  hostnames: ["poultry.example.com"]
+  path: "/api/farm"
+  timeout_request: "3s"
+  retry_codes: [500, 502, 503, 504]
+  retry_attempts: 3
+  retry_backoff: "1s"
+
+serviceAccount:
+  annotations:
+    example.com/annotation: "value"
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "endpoints"]
+      verbs: ["get", "list", "watch"]
+
