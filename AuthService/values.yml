@@ -108,7 +108,7 @@ argo_cd:
   helm_url: 'https://koteshwarchinnolla.github.io/helm-utilities/charts'
   chart_name: hrms-microservices
   chart_version: 0.1.0
-  path_to_values: farm/values.yaml
+  path_to_values: AuthService/values.yaml
   microservice_repo_url: 'https://github.com/KoteshwarChinnolla/TECHLIFE-BACKEND'
   branch: poultry
   destination_server: https://kubernetes.default.svc
