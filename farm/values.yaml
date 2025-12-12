@@ -86,7 +86,7 @@ gateway_service:
 
 httprouts:
   hostnames: ["hrms.anasolconsultancyservices.com"]
-  path: "/api/farm"
+  path: "/api/form"
   timeout_request: "3s"
   retry_codes: [500, 502, 503, 504]
   retry_attempts: 3
