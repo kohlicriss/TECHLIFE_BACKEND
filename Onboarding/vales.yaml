@@ -1,0 +1,139 @@
+replicaCount: 1
+
+microservice:
+  name: onboarding
+  namespace: hrms
+  port: 8080
+
+image:
+  repository: 208940303379.dkr.ecr.ap-south-2.amazonaws.com/hrms/onboarding
+  pullPolicy: IfNotPresent
+  tag: "v1.0.0"
+
+env:
+
+  SPRING_APPLICATION_NAME: mail
+  SERVER_PORT: 8080
+  SERVER_ADDRESS: 0.0.0.0
+
+
+  SPRING_JPA_HIBERNATE_DEFAULT_SCHEMA: onboarding
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  SPRING_JPA_SHOW_SQL: true
+  SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+
+
+  SPRING_SERVLET_MULTIPART_ENABLED: true
+  SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10MB
+  SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 50MB
+  SPRING_SERVLET_MULTIPART_FILE_SIZE_THRESHOLD: 2MB
+
+
+  SERVER_TOMCAT_MAX_SWALLOW_SIZE: "-1"
+
+
+  CLOUD_AWS_REGION_STATIC: eu-north-1
+  CLOUD_AWS_S3_BUCKET_NAME: onboardingprofiles
+
+
+  SPRING_MAIL_HOST: smtp.zoho.in
+  SPRING_MAIL_PORT: "587"
+  SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+  SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+
+envFromSecret:
+  SPRING_DATASOURCE_URL:
+    name: postgres-credentials
+    key: POSTGRES_URL
+
+  SPRING_DATASOURCE_USERNAME:
+    name: postgres-credentials
+    key: POSTGRES_USER
+
+  SPRING_DATASOURCE_PASSWORD:
+    name: postgres-credentials
+    key: POSTGRES_PASSWORD
+
+  CLOUD_AWS_CREDENTIALS_ACCESSKEY:
+    name: employee-aws-access
+    key: aws-access-key
+
+  CLOUD_AWS_CREDENTIALS_SECRETKEY:
+    name: employee-aws-access
+    key: aws-secret-key
+
+  SPRING_MAIL_USERNAME:
+    name: onboarding-mail-credentials
+    key: mail-username
+
+  SPRING_MAIL_PASSWORD:
+    name: onboarding-mail-credentials
+    key: mail-password
+
+
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations:
+  - key: "arch"
+    operator: "Equal"
+    value: "x86"
+    effect: "PreferNoSchedule"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+livenessProbe:
+  path: "actuator/health/liveness"
+  initialDelaySeconds: 180
+  periodSeconds: 10
+
+readinessProbe:
+  path: "actuator/health/readiness"
+  initialDelaySeconds: 150
+  periodSeconds: 10
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30092
+
+gateway_service:
+  namespace: istio-gateway
+
+httprouts:
+  hostnames:
+    - "hrms.anasolconsultancyservices.com"
+  path: "/api/offer"
+  timeout_request: "2s"
+  retry_codes: [500, 502, 503, 504]
+  retry_attempts: 3
+  retry_backoff: "1s"
+
+serviceAccount:
+  annotations:
+    example.com/annotation: "value"
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "endpoints", "services", "secrets", "configmaps"]
+      verbs: ["get", "list", "watch"]
+
+argo_cd:
+  helm_url: "https://koteshwarchinnolla.github.io/helm-utilities/charts"
+  chart_name: hrms-microservices
+  chart_version: 0.1.0
+  path_to_values: Onboarding/values.yaml
+  microservice_repo_url: "https://github.com/KoteshwarChinnolla/TECHLIFE-BACKEND"
+  branch: main
+  destination_server: https://kubernetes.default.svc
