@@ -24,7 +24,7 @@ public class Candidate {
 	private String role;
 	
 	private boolean offerAccepted = false;
-
+	private boolean offerMailSent = false;
 
 
 }

@@ -21,6 +21,10 @@ public class OfferToken {
 
 
     @OneToOne
-    @JoinColumn(name = "candidate_id")
+    @JoinColumn(
+            name = "candidate_id",
+            nullable = false
+    )
     private Candidate candidate;
+
 }

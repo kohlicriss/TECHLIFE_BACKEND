@@ -70,10 +70,12 @@ public class EmailService {
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setFrom(fromEmail);   // ✅ ONLY TECHNICAL FIX
         mail.setTo(candidate.getEmail());
-        mail.setSubject(" Onboarding Form – ACS Pvt Ltd");
+        mail.setSubject(" Onboarding FORM– ACS Pvt Ltd");
         mail.setText(body);
 
         log.info("Sending onboarding email to {}", candidate.getEmail());
+
+
         mailSender.send(mail);
     }
 }

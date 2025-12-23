@@ -27,6 +27,8 @@ public class S3StorageService {
     private final S3Presigner s3Presigner;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+    private static final long MAX_VIDEO_SIZE = 200 * 1024 * 1024; // 200MB
+
 
     public S3StorageService(S3Client s3Client, S3Presigner s3Presigner) {
         this.s3Client = s3Client;
@@ -40,9 +42,15 @@ public class S3StorageService {
             return null;
         }
 
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new IllegalArgumentException(docType + " exceeds 5MB limit");
+        long allowedSize =
+                "introVideo".equals(docType) ? MAX_VIDEO_SIZE : MAX_FILE_SIZE;
+
+        if (file.getSize() > allowedSize) {
+            throw new IllegalArgumentException(
+                    docType + " exceeds allowed size limit"
+            );
         }
+
 
         try {
             String originalName = Objects.requireNonNull(file.getOriginalFilename())
@@ -57,7 +65,12 @@ public class S3StorageService {
                     .contentType(file.getContentType())
                     .build();
 
-            s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
+            try (InputStream inputStream = file.getInputStream()) {
+                s3Client.putObject(
+                        request,
+                        RequestBody.fromInputStream(inputStream, file.getSize())
+                );
+            }
 
             log.info("Uploaded {} → {}", docType, s3Key);
             return s3Key;
@@ -111,4 +124,5 @@ public class S3StorageService {
             default -> "application/octet-stream";
         };
     }
+
 }

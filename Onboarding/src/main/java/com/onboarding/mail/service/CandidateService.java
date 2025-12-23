@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @Transactional
@@ -26,8 +27,16 @@ public class CandidateService {
     private final OnboardingRepository onboardingRepo;
 
     public Candidate saveCandidate(Candidate candidate) {
+
+        if (candidateRepo.existsByEmail(candidate.getEmail())) {
+            throw new RuntimeException(
+                    "Email already exists. Candidate already registered."
+            );
+        }
+
         return candidateRepo.save(candidate);
     }
+
 
     public void processOnboarding(
             String token,
@@ -50,8 +59,20 @@ public class CandidateService {
         OfferToken offerToken = tokenService.validateToken(token);
         Candidate candidate = offerToken.getCandidate();
 
-        CandidateOnboardingDetails details = new CandidateOnboardingDetails();
+        CandidateOnboardingDetails details =
+                onboardingRepo.findByCandidate(candidate)
+                        .orElse(new CandidateOnboardingDetails());
+
+        if (details.getLastSubmittedAt() != null &&
+                details.getLastSubmittedAt().plusHours(24).isAfter(LocalDateTime.now())) {
+
+            throw new RuntimeException(
+                    "You can resubmit onboarding only after 24 hours"
+            );
+        }
+
         details.setCandidate(candidate);
+
         details.setFullName(fullName);
         details.setDob(LocalDate.parse(dob));
         details.setPhone(phone);
@@ -60,6 +81,7 @@ public class CandidateService {
         details.setPassingYear(passingYear);
         details.setAddress(address);
 
+        // ✅ Upload documents
         details.setResumePath(
                 s3Service.uploadFile(resume, candidate.getId(), "resume")
         );
@@ -92,9 +114,14 @@ public class CandidateService {
             );
         }
 
-        onboardingRepo.save(details);
-        offerToken.setUsed(true);
+        // ✅ Timestamp for resubmission control
+        details.setLastSubmittedAt(LocalDateTime.now());
 
+        // ✅ Save (INSERT first time, UPDATE next time)
+        onboardingRepo.save(details);
+
+        // ✅ Mark token used
+        offerToken.setUsed(true);
     }
 
     public Page<CandidateOnboardingResponse> getAllOnboardedCandidates(Pageable pageable) {
@@ -130,7 +157,4 @@ public class CandidateService {
             return dto;
         });
     }
-
 }
-
-
