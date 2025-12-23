@@ -33,34 +33,35 @@ public class EmailService {
 
                 Congratulations!
 
-                We are pleased to inform you that you have been selected for the position of %s at ACS Pvt Ltd.
-                We are excited to have you join our team and look forward to a successful journey together.
+                We are pleased to inform you that you have been selected for the position of %s at Anasol Consultancy Services Pvt. Ltd.
+                We are excited to welcome you to our team and look forward to a successful journey together.
 
                 To proceed with the onboarding process, please complete your onboarding by clicking the link below:
 
-                %s
+                🔗 %s
 
                 Required Documents:
+
                 • Government-issued ID proof (Aadhaar / Passport / PAN Card)
                 • Scanned copies of educational certificates (10th, 12th, Graduation – all semesters)
                 • Passport-size photograph
                 • Updated resume
                 • Any additional certifications or training documents (if applicable)
+                • A 1-minute self-introduction video mentioning your name, role, and brief background
 
-                Please ensure all documents are uploaded accurately.
+                Please ensure that all documents and the introduction video are uploaded accurately.
                 While reporting to the office, kindly bring Xerox copies of all the above documents.
 
-                NOTE:
+                Note:
                 If your onboarding submission is not completed by the end of the day,
                 your offer may be revoked.
 
-                For any queries, contact:
-                hr@anasolconsultancyservices.com
-                9032091726
+                For any queries, please contact us at:
+                📧 hr@anasolconsultancyservices.com
 
                 Best Regards,
-                HR Associate
-                ACS Pvt Ltd
+                HR Department
+                ACS Pvt. Ltd.
                 """.formatted(
                 candidate.getName(),
                 candidate.getRole(),
@@ -68,13 +69,12 @@ public class EmailService {
         );
 
         SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setFrom(fromEmail);   // ✅ ONLY TECHNICAL FIX
+        mail.setFrom(fromEmail);
         mail.setTo(candidate.getEmail());
-        mail.setSubject(" Onboarding FORM– ACS Pvt Ltd");
+        mail.setSubject("Onboarding Form – Anasol Consultancy Services Pvt. Ltd.");
         mail.setText(body);
 
         log.info("Sending onboarding email to {}", candidate.getEmail());
-
 
         mailSender.send(mail);
     }
