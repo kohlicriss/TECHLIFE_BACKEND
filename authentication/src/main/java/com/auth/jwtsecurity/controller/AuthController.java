@@ -31,24 +31,24 @@ public class AuthController {
     private final CustomFeignContext  customFeignContext;
     private final MobileOtpService mobileOtpService;
     @PostMapping("/register")
-    @CheckPermission("PERMISSIONS_BUTTONS")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request, @RequestHeader String Authorization) {
-       customFeignContext.setToken(Authorization);
-        authService.registerUser(request);
+//    @CheckPermission("PERMISSIONS_BUTTONS")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) {
+//       customFeignContext.setToken(Authorization);
+        authService.registerUser(request, tenant_id);
         return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }
 
     @DeleteMapping("/delete/{userId}")
     @CheckPermission("PERMISSIONS_BUTTONS")
-    public ResponseEntity<?> deleteUser(@PathVariable String userId, @RequestHeader String Authorization) {
+    public ResponseEntity<?> deleteUser(@PathVariable String userId, @RequestHeader String Authorization, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) {
         customFeignContext.setToken(Authorization);
-        authService.deleteUser(userId.toLowerCase());
+        authService.deleteUser(userId.toLowerCase(), tenant_id);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 
     @PutMapping("/update/{userId}")
     @CheckPermission("PERMISSIONS_BUTTONS")
-    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody UpdateRequest request, @RequestHeader String Authorization) {
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody UpdateRequest request, @RequestHeader String Authorization, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) {
         customFeignContext.setToken(Authorization);
         userId = userId.toUpperCase();
         authService.updateUser(userId, request);
@@ -56,11 +56,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws BadRequestException {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) throws BadRequestException {
         if(loginRequest.getEmail() == null && loginRequest.getPhone() == null && loginRequest.getUsername() == null) {
             throw new BadRequestException("One of username, phonenumber, email must be provided");
         }
-        TokenPair tokenPair = authService.login(loginRequest);
+        TokenPair tokenPair = authService.login(loginRequest, tenant_id);
         //  token cookie part in http
         Cookie refreshTokenCookie = new Cookie("refreshToken", tokenPair.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);
@@ -73,8 +73,9 @@ public class AuthController {
                 "accessToken", tokenPair.getAccessToken()
         ));
     }
+
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletResponse response, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) {
         Cookie cookie = new Cookie("refreshToken", null);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -84,7 +85,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "User logged out successfully"));
     }
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) {
         String refreshToken = null;
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
@@ -98,7 +99,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Missing or empty refresh token");
         }
 
-        TokenPair tokenPair = authService.refreshTokenFromCookie(refreshToken);
+        TokenPair tokenPair = authService.refreshTokenFromCookie(refreshToken, tenant_id);
 
         return ResponseEntity.ok(Map.of(
                 "accessToken", tokenPair.getAccessToken()
@@ -106,25 +107,24 @@ public class AuthController {
     }
 
     @PutMapping("/SendOTPPhone")
-    public ResponseEntity<Map<String, String>> SendingOtpPhone(@RequestParam(defaultValue = "np") String phone, @RequestParam(defaultValue = "np") String userName) throws Exception {
-        String encrypted = mobileOtpService.sendOtpToUserPhone(userName, phone);
-
+    public ResponseEntity<Map<String, String>> SendingOtpPhone(@RequestParam(defaultValue = "np") String phone, @RequestParam(defaultValue = "np") String userName, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) throws Exception {
+        String encrypted = mobileOtpService.sendOtpToUserPhone(userName, phone, tenant_id);
         return ResponseEntity.ok(Map.of("token", encrypted));
     }
 
     @PutMapping("/SendOTP")
-    public ResponseEntity<Map<String, String>> SendingOtp(@RequestParam(defaultValue = "np") String mail, @RequestParam(defaultValue = "np") String userName, @RequestParam(defaultValue = "np") String phone) throws Exception {
-        String encrypted = mobileOtpService.OtpSender(userName, mail, phone);
+    public ResponseEntity<Map<String, String>> SendingOtp(@RequestParam(defaultValue = "np") String mail, @RequestParam(defaultValue = "np") String userName, @RequestParam(defaultValue = "np") String phone, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) throws Exception {
+        String encrypted = mobileOtpService.OtpSender(userName, mail, phone, tenant_id);
         return ResponseEntity.ok(Map.of("token", encrypted));
     }
     @PutMapping("/SendOTPMail")
-    public ResponseEntity<Map<String, String>> SendingOtpMail(@RequestParam(defaultValue = "np") String mail, @RequestParam(defaultValue = "np") String userName) throws Exception {
-        String encrypted = mobileOtpService.sendOtpToUserEmail(userName, mail);
+    public ResponseEntity<Map<String, String>> SendingOtpMail(@RequestParam(defaultValue = "np") String mail, @RequestParam(defaultValue = "np") String userName, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) throws Exception {
+        String encrypted = mobileOtpService.sendOtpToUserEmail(userName, mail, tenant_id);
         return ResponseEntity.ok(Map.of("token", encrypted));
     }
 
     @PutMapping("/VerifyOTP")
-    public ResponseEntity<?> verifyOTP(@RequestParam String otp, @RequestHeader String X_OTP_Token, HttpServletResponse response) throws Exception {
+    public ResponseEntity<?> verifyOTP(@RequestParam String otp, @RequestHeader String X_OTP_Token, HttpServletResponse response, @RequestHeader(defaultValue = "TECHLIFE") String tenant_id) throws Exception {
         TokenPair tokenPair = mobileOtpService.verifyOTP(otp,X_OTP_Token);
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", tokenPair.getRefreshToken());

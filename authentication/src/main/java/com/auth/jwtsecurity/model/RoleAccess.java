@@ -21,6 +21,8 @@ public class RoleAccess {
 
     private String roleName;
 
+    private String tenantId = "TECHLIFE";
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "role_permissions",

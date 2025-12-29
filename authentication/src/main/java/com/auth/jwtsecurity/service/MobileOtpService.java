@@ -58,14 +58,14 @@ public class MobileOtpService {
         this.privateKey = rsaKeyUtil.loadPrivateKey("classpath:keys/private_key.pem");
     }
 
-    public String sendOtpToUserPhone(String employeeId, String phoneNumber) throws Exception {
+    public String sendOtpToUserPhone(String employeeId, String phoneNumber, String tenant_id) throws Exception {
         if ((Objects.equals(employeeId, "np") || employeeId.isEmpty()) && (Objects.equals(phoneNumber, "np") || phoneNumber.isEmpty())) {
             throw new BadRequestException("Either employeeId or phoneNumber must be provided");
         }
 
         Optional<User> user;
         if (employeeId.equals("np")) {
-            user = userRepository.findByPhoneNumber(phoneNumber);
+            user = userRepository.findByPhoneNumberAndTenantId(phoneNumber, tenant_id);
         } else {
             user = userRepository.findByUsername(employeeId.toLowerCase());
         }
@@ -81,16 +81,16 @@ public class MobileOtpService {
         return rsaKeyUtil.rsaEncrypt(publicKey, id);
     }
 
-    public String sendOtpToUserEmail(String employeeId, String email) throws Exception {
+    public String sendOtpToUserEmail(String employeeId, String email, String tenant_id) throws Exception {
         if ((Objects.equals(employeeId, "np") || employeeId.isEmpty()) && (Objects.equals(email, "np") || email.isEmpty())) {
             throw new BadRequestException("Either employeeId or email must be provided");
         }
 
         Optional<User> user;
         if (employeeId.equals("np")) {
-            user = userRepository.findByEmail(email);
+            user = userRepository.findByEmailAndTenantId(email, tenant_id);
         } else {
-            user = userRepository.findByUsername(employeeId.toLowerCase());
+            user = userRepository.findByUsernameAndTenantId(employeeId.toLowerCase(), tenant_id);
         }
 
         if (user.isEmpty()) throw new BadRequestException("No user found with the given details");
@@ -128,7 +128,7 @@ public class MobileOtpService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtService.generateTokenPair(authentication);
     }
-    public String OtpSender(String employeeId, String email, String phone) throws Exception {
+    public String OtpSender(String employeeId, String email, String phone, String tenant_id) throws Exception {
 
         boolean noEmployeeId = (employeeId == null || employeeId.equals("np") || employeeId.isBlank());
         boolean noEmail      = (email == null || email.equals("np") || email.isBlank());
@@ -141,11 +141,11 @@ public class MobileOtpService {
         Optional<User> userOptional = Optional.empty();
 
         if (!noEmployeeId) {
-            userOptional = userRepository.findByUsername(employeeId.toLowerCase().trim());
+            userOptional = userRepository.findByUsernameAndTenantId(employeeId.toLowerCase().trim(), tenant_id);
         } else if (!noEmail) {
-            userOptional = userRepository.findByEmail(email.trim());
+            userOptional = userRepository.findByEmailAndTenantId(email.trim(), tenant_id);
         } else if (!noPhone) {
-            userOptional = userRepository.findByPhoneNumber(phone.trim());
+            userOptional = userRepository.findByPhoneNumberAndTenantId(phone.trim(), tenant_id);
         }
 
         if (userOptional.isEmpty()) {

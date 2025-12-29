@@ -31,8 +31,8 @@ env:
   SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 100MB
 
   # AWS
-  CLOUD_AWS_REGION_STATIC: ap-south-1
-  CLOUD_AWS_S3_BUCKET: techlifeacs
+  CLOUD_AWS_REGION_STATIC: ap-south-2
+  CLOUD_AWS_S3_BUCKET: techlifeprofiles
 
 envFromSecret:
   SPRING_DATASOURCE_URL:
@@ -50,6 +50,22 @@ envFromSecret:
   CLOUD_AWS_CREDENTIALS_SECRETKEY:
     name: employee-aws-access
     key: aws-secret-key
+
+
+# tolerations:
+#   - key: "arch"
+#     value: "x86"
+#     effect: "PreferNoSchedule"
+
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations:
+  - key: "arch"
+    operator: "Equal"
+    value: "x86"
+    effect: "PreferNoSchedule"
+
 
 resources:
   limits:

@@ -69,7 +69,7 @@ public class RoleAccessController {
 
     // Update role completely (rename + overwrite permissions)
     @PutMapping("/{id}")
-   @CheckPermission("PERMISSIONS_BUTTONS")
+//   @CheckPermission("PERMISSIONS_BUTTONS")
     public RoleAccess updateRole(@PathVariable Long id, @RequestBody RoleAccessRequest req) {
         return service.updateRole(id, req);
     }
@@ -83,7 +83,7 @@ public class RoleAccessController {
     
  // ✅ Remove a permission from a role
     @DeleteMapping("/{role}/permission/{permission}")
-    @CheckPermission("PERMISSIONS_BUTTONS")
+//    @CheckPermission("PERMISSIONS_BUTTONS")
     public RoleAccess removePermission(
             @PathVariable String role,
             @PathVariable String permission) {

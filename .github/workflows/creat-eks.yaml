@@ -174,6 +174,7 @@ jobs:
           helm upgrade --install tickets hrms-helm/hrms-microservices -f ./Tickets/values.yaml --namespace hrms
           helm upgrade --install attendance hrms-helm/hrms-microservices -f ./Attendance/values.yaml --namespace hrms
           helm upgrade --install offerletter hrms-helm/hrms-microservices -f ./OfferLetter/values.yaml --namespace hrms
+          helm upgrade --install onboarding hrms-helm/hrms-microservices -f ./Onboarding/values.yaml --namespace hrms
           kubectl apply -f kubernetes/utils/swagger-util.yaml
           
       - name: Annotate the service accounts for accessing aws resources
@@ -199,10 +200,7 @@ jobs:
           TLS_CERT: ${{ secrets.TLS_CERT }}
         run: |
           # kubectl create secret generic route53-secret --from-literal=access-key-id=$AWS_ACCESS_KEY_ID_ROUTE53 --from-literal=secret-access-key=$AWS_SECRET_ACCESS_KEY_ROUTE53 -n cert-manager || echo "secret already exists with name route53-secret"
-          kubectl create secret generic auth-db-secret --from-literal=username=$DB_USERNAME --from-literal=password=$DB_PASSWORD -n hrms || echo "secret already exists with name auth-db-secret"
-          kubectl create secret generic notification-db-secret --from-literal=username=$DB_USERNAME --from-literal=password=$DB_PASSWORD -n hrms || echo "secret already exists with name notification-db-secret"
           kubectl create secret generic notification-aws-secret --from-literal=smtp-username=$SMTP_USERNAME --from-literal=smtp-password=$SMTP_PASSWORD -n hrms || echo "secret already exists with name notification-aws-secret"
-          kubectl create secret generic employee-db-secret --from-literal=username=$DB_USERNAME --from-literal=password=$DB_PASSWORD -n hrms || echo "secret already exists with name employee-db-secret"
           kubectl create secret generic employee-aws-access --from-literal=aws-access-key=$AWS_ACCESS_KEY_ID  --from-literal=aws-secret-key=$AWS_SECRET_ACCESS_KEY -n hrms || echo "secret already exists with name employee-aws-access"
           kubectl create secret generic tempo-s3-credentials --from-literal=access-key-id=$AWS_ACCESS_KEY_ID --from-literal=secret-access-key=$AWS_SECRET_ACCESS_KEY -n observability || echo "secret already exists with name tempo-s3-credentials"
           kubectl create secret generic aws-creds --namespace cnpg-system --from-literal=ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --from-literal=SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY || echo "secret already exists"

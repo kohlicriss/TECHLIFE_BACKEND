@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -40,7 +41,7 @@ public class AuthService {
     );
 
     @Transactional
-    public void registerUser(@Valid RegisterRequest registerRequest) {
+    public void registerUser(@Valid RegisterRequest registerRequest, String tenant_id) {
         String username = registerRequest.getUsername().toLowerCase().trim();
 
         if (userRepository.existsByUsername(username)) {
@@ -58,21 +59,27 @@ public class AuthService {
                 .role(registerRequest.getRole())  // Should be "ADMIN", not "ROLE_ADMIN"
                 .email(registerRequest.getEmail())
                 .phoneNumber(registerRequest.getPhoneNumber())
+                .enabled(registerRequest.isEnabled())
+                .tenantId(tenant_id)
+                .createdAt(registerRequest.getCreatedAt())
                 .build();
-
-       Tickets tickets = Tickets.builder()
-                       .employeeId(username.toUpperCase().trim())
-                               .roles(registerRequest.getRole())
-                                       .build();
-       ResponseEntity<Tickets> re = ticketsUpdate.createAuth(tickets);
-       if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
-        userRepository.save(user);
+        if (tenant_id.equals("TECHLIFE")){
+            Tickets tickets = Tickets.builder()
+                    .employeeId(username.toUpperCase().trim())
+                    .roles(registerRequest.getRole())
+                    .build();
+            ResponseEntity<Tickets> re = ticketsUpdate.createAuth(tickets);
+            if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
+        }
+       userRepository.save(user);
     }
 
-    public void deleteUser(String id) {
-        User user = userRepository.findByUsername(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        ResponseEntity<Void> re = ticketsUpdate.deleteAuth(user.getUsername().toUpperCase());
-        if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
+    public void deleteUser(String id, String tenant_id) {
+        User user = userRepository.findByUsernameAndTenantId(id, tenant_id).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if(tenant_id.equals("TECHLIFE")) {
+            ResponseEntity<Void> re = ticketsUpdate.deleteAuth(user.getUsername().toUpperCase());
+            if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
+        }
         userRepository.delete(user);
     }
 
@@ -84,25 +91,32 @@ public class AuthService {
         user.setPhoneNumber(registerRequest.getPhoneNumber()!=null?registerRequest.getPhoneNumber(): user.getPhoneNumber());
         user.setEmail(registerRequest.getEmail()!=null?registerRequest.getEmail(): user.getEmail());
         user.setRole(registerRequest.getRole()!=null?registerRequest.getRole() : user.getRole());
-        Tickets tickets = Tickets.builder()
-                .employeeId(user.getUsername().toUpperCase())
-                .roles(registerRequest.getRole())
-                .build();
-        ResponseEntity<Tickets> re = ticketsUpdate.updateAuth(user.getUsername().toUpperCase(),tickets);
-        if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setCreatedAt(registerRequest.getCreatedAt()!=null?registerRequest.getCreatedAt(): user.getCreatedAt());
+        user.setTenantId(registerRequest.getTenantId()!=null?registerRequest.getTenantId(): user.getTenantId());
+        user.setEnabled(registerRequest.isEnabled());
+        user.setAccountNonLocked(registerRequest.isAccountNonLocked() == user.isAccountNonLocked() && registerRequest.isAccountNonLocked());
+        if (registerRequest.getTenantId().equals("TECHLIFE")) {
+            Tickets tickets = Tickets.builder()
+                    .employeeId(user.getUsername().toUpperCase())
+                    .roles(registerRequest.getRole())
+                    .build();
+            ResponseEntity<Tickets> re = ticketsUpdate.updateAuth(user.getUsername().toUpperCase(), tickets);
+            if (!re.getStatusCode().is2xxSuccessful()) throw new RuntimeException("Cant Update Tickets branch");
+        }
         userRepository.save(user);
     }
 
-    public TokenPair login(@Valid LoginRequest loginRequest) throws BadRequestException {
+    public TokenPair login(@Valid LoginRequest loginRequest, String tenant_id) throws BadRequestException {
 
         Optional<User> userOptional = Optional.empty();
 
         if (loginRequest.getUsername() != null && !loginRequest.getUsername().isBlank()) {
-            userOptional = userRepository.findByUsername(loginRequest.getUsername().toLowerCase().trim());
+            userOptional = userRepository.findByUsernameAndTenantId(loginRequest.getUsername().toLowerCase().trim(), tenant_id);
         } else if (loginRequest.getEmail() != null && !loginRequest.getEmail().isBlank()) {
-            userOptional = userRepository.findByEmail(loginRequest.getEmail().trim());
+            userOptional = userRepository.findByEmailAndTenantId(loginRequest.getEmail().trim(), tenant_id);
         } else if (loginRequest.getPhone() != null && !loginRequest.getPhone().isBlank()) {
-            userOptional = userRepository.findByPhoneNumber(loginRequest.getPhone().trim());
+            userOptional = userRepository.findByPhoneNumberAndTenantId(loginRequest.getPhone().trim(),  tenant_id);
         } else {
             throw new BadRequestException("At least one field (username, email, phone) must be provided");
         }
@@ -123,12 +137,13 @@ public class AuthService {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        user.setLastLoginAt(LocalDateTime.now());
+        userRepository.save(user);
         return jwtService.generateTokenPair(authentication);
     }
 
 
-    public TokenPair refreshTokenFromCookie(String refreshToken) {
+    public TokenPair refreshTokenFromCookie(String refreshToken, String tenant_id) {
         if (!jwtService.isRefreshToken(refreshToken)) {
             throw new IllegalArgumentException("Invalid refresh token");
         }

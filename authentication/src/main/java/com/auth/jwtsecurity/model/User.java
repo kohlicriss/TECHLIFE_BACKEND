@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,11 +36,19 @@ public class User {
 
     private String phoneNumber;
     private String email;
+    @Column(name = "tenant_id")
+    private String tenantId = "TECHLIFE";
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    private boolean enabled;
+    private boolean accountNonLocked;
 
-    public User(String fullName, String username, String password, Role role) {
+    private String role;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime lastLoginAt;
+
+    public User(String fullName, String username, String password, String role) {
         this.fullName = fullName;
         this.username = username;
         this.password = password;

@@ -30,7 +30,8 @@ env:
   DATA_REDIS_SENTINEL_MASTER: mymaster
   DATA_REDIS_PASSWORD: RedisPasswordMaster
   DATA_REDIS_SENTINEL_NODES: sentinel-access.redis.svc.cluster.local:5000
-  QUARTZ_INIT_SCHEMA: never
+  QUARTZ_INIT_SCHEMA: always
+
 
 envFromSecret:
   DB_URL:
@@ -45,6 +46,14 @@ envFromSecret:
   PAYROLL_PASSWARD:
     name: postgres-credentials
     key: POSTGRES_PASSWORD
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations:
+  - key: "arch"
+    operator: "Equal"
+    value: "x86"
+    effect: "PreferNoSchedule"
 
 ## k8s
 resources:

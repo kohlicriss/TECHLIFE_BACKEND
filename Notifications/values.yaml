@@ -14,6 +14,7 @@ image:
 
 env:
   APPLICATION_NAME: Notifications
+  DATABASE_URL: jdbc:postgresql://postgres-cluster-rw.cnpg-system.svc.cluster.local:5432/app
   JPA_HIBERNATE_DDL_AUTO: update
 
   CACHE_TYPE: redis
@@ -29,9 +30,9 @@ env:
 
 
 envFromSecret:
-  DATABASE_URL:
-    name: postgres-credentials
-    key: POSTGRES_URL
+  # DATABASE_URL:
+  #   name: postgrs-credentials
+  #   key: POSTGRES_URL
   DB_USERNAME:
     name: postgres-credentials
     key: POSTGRES_USER
@@ -45,6 +46,16 @@ envFromSecret:
     name: notification-aws-secret
     key: smtp-password
   
+  
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations:
+  - key: "arch"
+    operator: "Equal"
+    value: "x86"
+    effect: "PreferNoSchedule"
+
 
 resources: 
   limits:

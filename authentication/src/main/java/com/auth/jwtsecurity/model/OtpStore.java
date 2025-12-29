@@ -58,4 +58,5 @@ public class OtpStore {
     private User employeeID;
     private Instant expiryTime;
     private Boolean verified;
+    private String tenantId;
 }

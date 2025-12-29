@@ -6,7 +6,6 @@ metadata:
   namespace: cnpg-system
 spec:
   instances: 3
-
   postgresql:
     parameters:
       max_connections: "100"
@@ -39,8 +38,8 @@ spec:
 
   backup:
     barmanObjectStore:
-      destinationPath: "s3://hrms-postgress-bucket/"
-      endpointURL: "https://s3.ap-south-1.amazonaws.com"
+      destinationPath: "s3://hrms-postgress/"
+      endpointURL: "https://s3.us-east-1.amazonaws.com"
       s3Credentials:
         accessKeyId:
           name: aws-creds
@@ -63,9 +62,9 @@ spec:
   externalClusters:
     - name: s3-recovery
       barmanObjectStore:
-        destinationPath: "s3://hrms-postgress-bucket/"
+        destinationPath: "s3://hrms-postgress/"
         serverName: "s3-recovery"
-        endpointURL: "https://s3.ap-south-1.amazonaws.com"
+        endpointURL: "https://s3.us-east-1.amazonaws.com"
         s3Credentials:
           accessKeyId:
             name: aws-creds
@@ -77,6 +76,9 @@ spec:
   affinity:
     enablePodAntiAffinity: true
     topologyKey: kubernetes.io/hostname
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      eks.amazonaws.com/capacityType: ON_DEMAND
 
 ---
 

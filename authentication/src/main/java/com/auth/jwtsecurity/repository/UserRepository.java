@@ -8,9 +8,11 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
+    @Query(nativeQuery = true, value = "SELECT * FROM auth.application_user AS A WHERE A.username = :username AND A.tenant_id = :tenant_id")
+    Optional<User> findByUsernameAndTenantId(String username, String tenant_id);
     Boolean existsByUsername(String username);
-    @Query(nativeQuery = true, value = "SELECT * FROM auth.application_user AS A WHERE A.email = :email")
-    Optional<User> findByEmail(String email);
-    @Query(nativeQuery = true, value = "SELECT * FROM auth.application_user AS A WHERE A.phone_number = :phoneNumber")
-    Optional<User> findByPhoneNumber(String phoneNumber);
+    @Query(nativeQuery = true, value = "SELECT * FROM auth.application_user AS A WHERE A.email = :email AND A.tenant_id = :tenant_id")
+    Optional<User> findByEmailAndTenantId(String email, String tenant_id);
+    @Query(nativeQuery = true, value = "SELECT * FROM auth.application_user AS A WHERE A.phone_number = :phoneNumber AND A.tenant_id = :tenant_id")
+    Optional<User> findByPhoneNumberAndTenantId(String phoneNumber, String tenant_id);
 }

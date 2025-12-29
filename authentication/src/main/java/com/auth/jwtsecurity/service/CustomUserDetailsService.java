@@ -23,4 +23,4 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getPassword(),
                 getAuthority(user));}
    private Collection<? extends GrantedAuthority> getAuthority(User user) {
-    return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));}}
+    return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));}}

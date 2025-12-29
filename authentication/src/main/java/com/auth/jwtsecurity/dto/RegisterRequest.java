@@ -1,6 +1,5 @@
 package com.auth.jwtsecurity.dto;
 
-import com.auth.jwtsecurity.model.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -8,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -30,7 +31,12 @@ public class RegisterRequest {
     )
     private String password;
 
-    private String phoneNumber;
-    private String email;
-    private Role role;
+    private String phoneNumber = null;
+    private String email = null;
+    @NotBlank(message = "Role Required")
+    private String role;
+
+    // ---------New-------------
+    private boolean enabled =  true;
+    private LocalDateTime createdAt  = LocalDateTime.now();
 }
